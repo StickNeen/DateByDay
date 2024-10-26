@@ -1,6 +1,7 @@
 import random
 from datetime import datetime, timedelta
 
+
 def generate_random_date():
     # Generate a random date between years 1900 and 2100
     rangeweight = random.randint(1,4)
