@@ -5,38 +5,36 @@ from datetime import datetime, timedelta
 #Header
 st.header("Date Practice!", divider="rainbow")
 
-dateFormat = st.radio("Date Format", ["MM/DD/YYYY", "DD/MM/YYYY"])
-st.markdown('#####')
+dateFormat = st.radio("Date Format", ["MM/DD/YYYY", "DD/MM/YYYY", "Month/DD/YYYY", "DD/Month/YYYY"])
 
+if dateFormat == "MM/DD/YYYY" or dateFormat == "Month/DD/YYYY":
+    calendarDateFormat = "MM/DD/YYYY"
+else:
+    calendarDateFormat = "DD/MM/YYYY"
+
+
+st.markdown('#####')
 #Chose the date range of guesses
 customRange = st.toggle("Custom date range?")
 
 if customRange == False:
-    startDay = 1
-    startMonth = 1
-    startYear = 1900
-    startDate = datetime(startYear, startMonth, startDay)
-    endDay = 1
-    endMonth = 1
-    endYear = 2100
-    endDate = datetime(endYear, endMonth, endDay)
+    startDate = datetime(1900,1,1)
+    endDate = datetime(2100,1,1)
 
 if customRange == True:
-    startDate = st.date_input("Start of custom range", min_value=datetime(1600,1,1), max_value=datetime(2600,1,1), format=dateFormat)
-    startDay = startDate.day
-    startMonth = startDate.month
-    startYear = startDate.year
-
-    endDate = st.date_input("End of custom range", min_value=startDate, max_value=datetime(2600,1,1), format=dateFormat)
-    endDay = endDate.day
-    endMonth = endDate.month
-    endYear = endDate.year
+    startDate = st.date_input("Start of custom range", min_value=datetime(1600,1,1), max_value=datetime(2600,1,1), format=calendarDateFormat)
+    endDate = st.date_input("End of custom range", min_value=startDate, max_value=datetime(2600,1,1), format=calendarDateFormat)
 
 
 if dateFormat == "MM/DD/YYYY":
-    st.subheader(f"Date Range: {startMonth}/{startDay}/{startYear} to {endMonth}/{startDay}/{endYear}")
+    st.subheader(f"Date Range: {startDate.strftime("%m/%d/%Y")} to {endDate.strftime("%m/%d/%Y")}")
 elif dateFormat == "DD/MM/YYYY":
-    st.subheader(f"Date Range: {startDay}/{startMonth}/{startYear} to {endDay}/{endMonth}/{endYear}")
+    st.subheader(f"Date Range: {startDate.strftime("%d/%m/%Y")} to {endDate.strftime("%d/%m/%Y")}")
+elif dateFormat == "Month/DD/YYYY":
+    st.subheader(f"Date Range: {startDate.strftime("%B/%d/%Y")} to {endDate.strftime("%B/%d/%Y")}")
+elif dateFormat == "DD/Month/YYYY":
+    st.subheader(f"Date Range: {startDate.strftime("%d/%B/%Y")} to {endDate.strftime("%d/%B/%Y")}")
+
 
 #Generate the random date
 def generate_random_date():
@@ -44,7 +42,6 @@ def generate_random_date():
     randomDays = random.randint(0, (endDate - startDate).days)
     randomDate = startDate + timedelta(days=randomDays)
     return randomDate
-
 
 
 #Add space after date range
