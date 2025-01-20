@@ -2,6 +2,7 @@ import streamlit as st
 import random
 from datetime import datetime, timedelta
 
+
 #Header
 st.header("Date Practice!", divider="rainbow")
 
@@ -18,8 +19,8 @@ st.markdown('#####')
 customRange = st.toggle("Custom date range?")
 
 if customRange == False:
-    startDate = datetime(1900,1,1)
-    endDate = datetime(2100,1,1)
+    startDate = datetime(1900,1,1).date()
+    endDate = datetime(2100,1,1).date()
 
 if customRange == True:
     startDate = st.date_input("Start of custom range", min_value=datetime(1600,1,1), max_value=datetime(2600,1,1), format=calendarDateFormat)
@@ -52,20 +53,21 @@ generateButton = st.button("Generate a new random date")
 
 
 
-if 'randomDate' not in st.session_state:
-        st.session_state.randomDate = ""
-if 'correctDay' not in st.session_state:
-    st.session_state.correctDay = ""
-if 'dateGenerated' not in st.session_state:
-        st.session_state.dateGenerated = False
-if 'randomDateEU' not in st.session_state:
-        st.session_state.randomDateEU = ""
-if 'randomDateUS' not in st.session_state:
-        st.session_state.randomDateUS = ""
-if 'randomDateMonth' not in st.session_state:
-        st.session_state.randomDateMonth = ""
-if 'randomDateMo' not in st.session_state:
-        st.session_state.randomDateMo = ""
+
+#if 'correctDay' not in st.session_state:
+#    st.session_state.correctDay = ""
+#if 'randomDateEU' not in st.session_state:
+#        st.session_state.randomDateEU = ""
+#if 'randomDateUS' not in st.session_state:
+#        st.session_state.randomDateUS = ""
+#if 'randomDateMonth' not in st.session_state:
+#        st.session_state.randomDateMonth = ""
+#if 'randomDateMo' not in st.session_state:
+#        st.session_state.randomDateMo = ""
+#if 'tense1' not in st.session_state:
+#        st.session_state.tense1 = ""
+#if 'tense2' not in st.session_state:
+#        st.session_state.tense2 = ""
 
 if 'gameStarted' not in st.session_state:
         st.session_state.gameStarted = False
@@ -75,14 +77,24 @@ if generateButton == True:
     randomDate = generate_random_date()
     st.session_state.correctDay = randomDate.strftime("%A")
 
+    ###Save Date Formats###
     st.session_state.randomDateEU = randomDate.strftime("%d.%m.%Y")
     st.session_state.randomDateUS = randomDate.strftime("%m/%d/%Y")
     st.session_state.randomDateMonth = randomDate.strftime("%B %d, %Y")
     st.session_state.randomDateMo = randomDate.strftime("%d %b %Y")
 
-    st.session_state.randomDate = str(randomDate)
+    ###Tense Formatting###
+    if randomDate > datetime.now().date():
+        st.session_state.tense1 = "will"
+        st.session_state.tense2 = " be"
+    if randomDate == datetime.now().date():
+        st.session_state.tense1 = "is"
+        st.session_state.tense2 = ""
+    if randomDate < datetime.now().date():
+        st.session_state.tense1 = "was"
+        st.session_state.tense2 = ""
 
-    st.session_state.dateGenerated = True
+
     st.session_state.gameStarted = True
 
 
@@ -90,16 +102,17 @@ if generateButton == True:
 #st.write(st.session_state.correctDay)
 
 if st.session_state.gameStarted == True:
-#   dayGuess = st.text_input(f"What day of the week was {randomDate[0:10]}? (YYYY-MM-DD)")
-    if dateFormat == "MM/DD/YYYY":
-        dayGuess = st.selectbox(f"What day of the week was {st.session_state.randomDateUS}?",("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
-    elif dateFormat == "DD.MM.YYYY":
-        dayGuess = st.selectbox(f"What day of the week was {st.session_state.randomDateEU}?",("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
-    elif dateFormat == "Month DD, YYYY":
-        dayGuess = st.selectbox(f"What day of the week was {st.session_state.randomDateMonth}?",("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
-    elif dateFormat == "DD Mo YYYY":
-        dayGuess = st.selectbox(f"What day of the week was {st.session_state.randomDateMo}?",("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
 
+    if dateFormat == "MM/DD/YYYY":
+        dayGuess = st.selectbox(f"What day of the week {st.session_state.tense1} {st.session_state.randomDateUS}{st.session_state.tense2}?",("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+    elif dateFormat == "DD.MM.YYYY":
+        dayGuess = st.selectbox(f"What day of the week {st.session_state.tense1} {st.session_state.randomDateEU}{st.session_state.tense2}?",("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+    elif dateFormat == "Month DD, YYYY":
+        dayGuess = st.selectbox(f"What day of the week {st.session_state.tense1} {st.session_state.randomDateMonth}{st.session_state.tense2}?",("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+    elif dateFormat == "DD Mo YYYY":
+        dayGuess = st.selectbox(f"What day of the week {st.session_state.tense1} {st.session_state.randomDateMo}{st.session_state.tense2}?",("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+
+    ###Guessing Button###
     guessButton = st.button("Enter Guess")
     if guessButton == True:
         if dayGuess == st.session_state.correctDay:
