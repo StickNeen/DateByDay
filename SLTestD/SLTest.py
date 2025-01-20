@@ -22,26 +22,21 @@ if customRange == False:
     endDate = datetime(endYear, endMonth, endDay)
 
 if customRange == True:
-    startDate = st.date_input("Start of custom range", min_value=datetime(1600,1,1), max_value=datetime(2600,1,1), format="MM/DD/YYYY")
+    startDate = st.date_input("Start of custom range", min_value=datetime(1600,1,1), max_value=datetime(2600,1,1), format=dateFormat)
     startDay = startDate.day
     startMonth = startDate.month
     startYear = startDate.year
 
-    #st.write(startDate)
-    #st.write(f"Month: {startMonth}")
-    #st.write(f"Year: {startYear}")
-
-    endDate = st.date_input("End of custom range", min_value=startDate, max_value=datetime(2600,1,1), format="MM/DD/YYYY")
+    endDate = st.date_input("End of custom range", min_value=startDate, max_value=datetime(2600,1,1), format=dateFormat)
     endDay = endDate.day
     endMonth = endDate.month
     endYear = endDate.year
-    #st.write(f"Month: {endMonth}")
-    #st.write(f"Year: {endYear}")
 
 
-
-st.subheader(f"Date Range: {startMonth}/{startDay}/{startYear} to {endMonth}/{startDay}/{endYear}")
-
+if dateFormat == "MM/DD/YYYY":
+    st.subheader(f"Date Range: {startMonth}/{startDay}/{startYear} to {endMonth}/{startDay}/{endYear}")
+elif dateFormat == "DD/MM/YYYY":
+    st.subheader(f"Date Range: {startDay}/{startMonth}/{startYear} to {endDay}/{endMonth}/{endYear}")
 
 #Generate the random date
 def generate_random_date():
@@ -66,8 +61,10 @@ if 'correctDay' not in st.session_state:
     st.session_state.correctDay = ""
 if 'dateGenerated' not in st.session_state:
         st.session_state.dateGenerated = False
-
-
+if 'randomDateEU' not in st.session_state:
+        st.session_state.randomDateEU = ""
+if 'randomDateUS' not in st.session_state:
+        st.session_state.randomDateUS = ""
 if 'gameStarted' not in st.session_state:
         st.session_state.gameStarted = False
 
@@ -75,24 +72,32 @@ if 'gameStarted' not in st.session_state:
 if generateButton == True:
     randomDate = generate_random_date()
     st.session_state.correctDay = randomDate.strftime("%A")
+
+    st.session_state.randomDateEU = randomDate.strftime("%d/%m/%Y")
+    st.session_state.randomDateUS = randomDate.strftime("%m/%d/%Y")
+
     st.session_state.randomDate = str(randomDate)
 
     st.session_state.dateGenerated = True
     st.session_state.gameStarted = True
+
 
 #Give correct answer for testing
 #st.write(st.session_state.correctDay)
 
 if st.session_state.gameStarted == True:
 #   dayGuess = st.text_input(f"What day of the week was {randomDate[0:10]}? (YYYY-MM-DD)")
-    dayGuess = st.selectbox(f"What day of the week was {st.session_state.randomDate[0:10]}? (YYYY-MM-DD)",("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+    if dateFormat == "MM/DD/YYYY":
+        dayGuess = st.selectbox(f"What day of the week was {st.session_state.randomDateUS}?",("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+    elif dateFormat == "DD/MM/YYYY":
+        dayGuess = st.selectbox(f"What day of the week was {st.session_state.randomDateEU}?",("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
 
-#if st.session_state.gameStarted == True:
+
     guessButton = st.button("Enter Guess")
     if guessButton == True:
-        if dayGuess[0:1].lower == st.session_state.correctDay[0:1].lower:
+        if dayGuess == st.session_state.correctDay:
             st.write("Correct!")
-        elif dayGuess[0:1].lower != "":
+        else:
             st.write("Incorrect")
 
 #Write all saved variables for debugging
