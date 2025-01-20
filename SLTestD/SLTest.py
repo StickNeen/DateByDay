@@ -5,40 +5,46 @@ from datetime import datetime, timedelta
 #Header
 st.header("Date Practice!", divider="rainbow")
 
-
-
+dateFormat = st.radio("Date Format", ["MM/DD/YYYY", "DD/MM/YYYY"])
+st.markdown('#####')
 
 #Chose the date range of guesses
 customRange = st.toggle("Custom date range?")
 
 if customRange == False:
+    startDay = 1
     startMonth = 1
     startYear = 1900
+    startDate = datetime(startYear, startMonth, startDay)
+    endDay = 1
     endMonth = 1
     endYear = 2100
+    endDate = datetime(endYear, endMonth, endDay)
 
 if customRange == True:
-    startDate = st.text_input("Start of custom range (MM/YYYY)")
-    startMonth = startDate[0:2]
-    startYear = startDate[3:7]
+    startDate = st.date_input("Start of custom range", min_value=datetime(1600,1,1), max_value=datetime(2600,1,1), format="MM/DD/YYYY")
+    startDay = startDate.day
+    startMonth = startDate.month
+    startYear = startDate.year
+
+    #st.write(startDate)
     #st.write(f"Month: {startMonth}")
     #st.write(f"Year: {startYear}")
 
-    endDate = st.text_input("End of custom range (MM/YYYY)")
-    endMonth = endDate[0:2]
-    endYear = endDate[3:7]
+    endDate = st.date_input("End of custom range", min_value=startDate, max_value=datetime(2600,1,1), format="MM/DD/YYYY")
+    endDay = endDate.day
+    endMonth = endDate.month
+    endYear = endDate.year
     #st.write(f"Month: {endMonth}")
     #st.write(f"Year: {endYear}")
 
-st.subheader(f"Date Range: {startMonth}/{startYear} to {endMonth}/{endYear}")
 
-#testCalendar = st.date_input("date?", min_value=datetime(1600,1,1))
-st.write("Small change")
+
+st.subheader(f"Date Range: {startMonth}/{startDay}/{startYear} to {endMonth}/{startDay}/{endYear}")
+
 
 #Generate the random date
 def generate_random_date():
-    startDate = datetime(int(startYear), int(startMonth), 1)
-    endDate = datetime(int(endYear), int(endMonth), 31)
 
     randomDays = random.randint(0, (endDate - startDate).days)
     randomDate = startDate + timedelta(days=randomDays)
@@ -47,7 +53,7 @@ def generate_random_date():
 
 
 #Add space after date range
-st.markdown('######')
+st.markdown('#####')
 
 
 generateButton = st.button("Generate a new random date")
@@ -100,8 +106,10 @@ if st.session_state.gameStarted == True:
 # Add preset time range(s), make custom just an option
 # Generate new date button
 # Option for auto-generate on correct guess
-# 
-# Intro and other explaination pages
+# Use calendar input
+# Intro and other explanation pages
 # Link to numberphile video?
 # Other practice: just doomsdays, 12s or 16s practice
 # Check current date, write was if question date is in past or is if in present
+# Overall scorekeeping
+# Add option to write dates in words?
