@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 st.header("Date Practice!", divider="rainbow")
 
 dateFormat = st.selectbox("Date Format", ["MM/DD/YYYY", "DD.MM.YYYY", "Month DD, YYYY", "DD Mo YYYY"])
+#dateFormat = "MM/DD/YYYY"
 
 if dateFormat == "MM/DD/YYYY" or dateFormat == "Month DD, YYYY":
     calendarDateFormat = "MM/DD/YYYY"
@@ -120,6 +121,19 @@ if st.session_state.gameStarted == True:
         else:
             st.write("Incorrect")
 
+
+
+col1, col2, col3, col4 = st.columns(4)
+
+# Place st.metric in each column
+with col1:
+    st.metric(label="Metric 1", value="123", delta="+5")
+    
+with col2:
+    st.metric(label="Metric 2", value="456", delta="-2")
+    
+with col3:
+    st.metric(label="Metric 3", value="789", delta="+10", delta_color="off")
 
 
 ###TO DO###
