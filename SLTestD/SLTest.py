@@ -83,6 +83,8 @@ with st.expander("Extra Date Options"):
 
 
 
+
+
 ########## RANDOM DATE GENERATION ##########
 def generate_random_date():
     randomDays = random.randint(0, (st.session_state.endDate - st.session_state.startDate).days)
