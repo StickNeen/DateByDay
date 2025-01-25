@@ -14,6 +14,8 @@ if "gameStarted" not in st.session_state:
     st.session_state.gameStarted = False
 if "guessingStarted" not in st.session_state:
     st.session_state.guessingStarted = False
+if "alrGuessedCorrectly" not in st.session_state:
+    st.session_state.alrGuessedCorrectly = False
 
 if "startDate" not in st.session_state:
     st.session_state.startDate = datetime(1900,1,1).date()
@@ -34,8 +36,6 @@ if "longestStreak" not in st.session_state:
     st.session_state.longestStreak = 0
 if "oldAnswerTime" not in st.session_state:
     st.session_state.oldAnswerTime = ""
-
-
 if "guessPercentage" not in st.session_state:
     st.session_state.guessPercentage = 0
 
@@ -60,7 +60,6 @@ with st.expander("Extra Date Options"):
 
 
     ########## CUSTOM RANGE ##########
-    st.divider()
 
     customRange = st.toggle("Custom date range?")
 
@@ -85,6 +84,9 @@ with st.expander("Extra Date Options"):
         dateRangeSubheader.subheader(f"Date Range: {st.session_state.startDate.strftime("%d %b %Y")} to {st.session_state.endDate.strftime("%d %b %Y")}")
 
 
+
+    ########## AUTO REGENERATE ON CORRECT ANSWER ##########
+    autoRegen = st.toggle("Automatically generate new date on correct answer?")
     
 
 
@@ -100,7 +102,7 @@ def generate_random_date():
 st.markdown('#####')
 generateButton = st.button("Generate a new random date")
 
-if generateButton == True:
+def generateButtonPressed():
     randomDate = generate_random_date()
     st.session_state.correctDay = randomDate.strftime("%A")
 
@@ -123,10 +125,13 @@ if generateButton == True:
 
     ########## START TIMER ##########
     st.session_state.timerStart = datetime.now().time().hour*3600 + datetime.now().time().minute * 60 + datetime.now().time().second + datetime.now().time().microsecond / 1000000
-
-
     st.session_state.gameStarted = True
 
+    ########## RESET ALREADY GUESSED STATUS ##########
+    st.session_state.alrGuessedCorrectly = False
+
+if generateButton == True:
+    generateButtonPressed()
 
 #Give correct answer for testing
 #st.write(st.session_state.correctDay)
@@ -156,7 +161,11 @@ if st.session_state.gameStarted == True:
     with col2:
         st.write("⠀")
     if guessButton == True:
-        if dayGuess == st.session_state.correctDay:
+        if st.session_state.alrGuessedCorrectly:
+            with col1:
+                st.write(f"You already guessed correctly: {st.session_state.correctDay}!")
+        
+        elif dayGuess == st.session_state.correctDay:
             with col1:
                 st.write("Correct!")
   
@@ -174,6 +183,15 @@ if st.session_state.gameStarted == True:
 
             st.session_state.answerTimeStr = f"{st.session_state.answerTime:.2f}s"
             st.session_state.oldAnswerTime = st.session_state.answerTime
+
+            ########## MARK ALREADY GUESSED ##########
+            st.session_state.alrGuessedCorrectly = True
+
+
+            ########## AUTOMATICALLY GENERATE NEW DATE ##########
+            if autoRegen == True:
+                generateButtonPressed()
+                st.rerun()
 
         else:
             with col1:
@@ -236,17 +254,11 @@ if st.session_state.guessingStarted == True:
 
 
 ########## TO DO ##########
-# Option for auto-generate on correct guess
 # timer
 # Overall scorekeeping
 # Intro and other explanation pages
 # Link to numberphile video?
 # Other practice: just doomsdays, 12s or 16s practice
-# Check current date, write was if question date is in past or is if in present
-# Add option to write dates in words?
-# Add settings page with all of the options
-# Add option to input answers differently
-# Remove enter guess button when answered correctly
 # Reset stats button?
 # Add if precent accuracy is unchanged, delta doesnt appear
 
@@ -255,3 +267,8 @@ if st.session_state.guessingStarted == True:
 # Add preset time range(s), make custom just an option
 # Generate new date button
 # Use calendar input
+# Option for auto-generate on correct guess
+# Check current date, write was if question date is in past or is if in present
+# Add option to write dates in words?
+# Add settings page with all of the options
+# Remove enter guess button when answered correctly
