@@ -3,9 +3,12 @@ import random
 from datetime import datetime, timedelta
 
 
-#Header
+########## HEADER ##########
 st.header("Date Practice!", divider="rainbow")
 
+
+
+########## FORMAT QUESTION ##########
 dateFormat = st.selectbox("Date Format", ["MM/DD/YYYY", "DD.MM.YYYY", "Month DD, YYYY", "DD Mo YYYY"])
 #dateFormat = "MM/DD/YYYY"
 
@@ -15,8 +18,10 @@ else:
     calendarDateFormat = "DD.MM.YYYY"
 
 
+
+########## CUSTOM RANGE ##########
 st.markdown('#####')
-#Chose the date range of guesses
+
 customRange = st.toggle("Custom date range?")
 
 if customRange == False:
@@ -28,6 +33,8 @@ if customRange == True:
     endDate = st.date_input("End of custom range", min_value=startDate, max_value=datetime(2600,1,1), format=calendarDateFormat)
 
 
+
+########## DATE RANGE HEADER ##########
 if dateFormat == "MM/DD/YYYY":
     st.subheader(f"Date Range: {startDate.strftime("%m/%d/%Y")} to {endDate.strftime("%m/%d/%Y")}")
 elif dateFormat == "DD.MM.YYYY":
@@ -38,53 +45,39 @@ elif dateFormat == "DD Mo YYYY":
     st.subheader(f"Date Range: {startDate.strftime("%d %b %Y")} to {endDate.strftime("%d %b %Y")}")
 
 
-#Generate the random date
-def generate_random_date():
 
+########## RANDOM DATE GENERATION ##########
+def generate_random_date():
     randomDays = random.randint(0, (endDate - startDate).days)
     randomDate = startDate + timedelta(days=randomDays)
     return randomDate
 
 
-#Add space after date range
+
+########## START SESSION STATE VARIABLES ##########
+if "gameStarted" not in st.session_state:
+    st.session_state.gameStarted = False
+
+if "totalCorrect" not in st.session_state:
+    st.session_state.totalCorrect = 0
+
+
+
+########## GENERATE DATE BUTTON ##########
 st.markdown('#####')
-
-
 generateButton = st.button("Generate a new random date")
-
-
-
-
-#if 'correctDay' not in st.session_state:
-#    st.session_state.correctDay = ""
-#if 'randomDateEU' not in st.session_state:
-#        st.session_state.randomDateEU = ""
-#if 'randomDateUS' not in st.session_state:
-#        st.session_state.randomDateUS = ""
-#if 'randomDateMonth' not in st.session_state:
-#        st.session_state.randomDateMonth = ""
-#if 'randomDateMo' not in st.session_state:
-#        st.session_state.randomDateMo = ""
-#if 'tense1' not in st.session_state:
-#        st.session_state.tense1 = ""
-#if 'tense2' not in st.session_state:
-#        st.session_state.tense2 = ""
-
-if 'gameStarted' not in st.session_state:
-        st.session_state.gameStarted = False
-
 
 if generateButton == True:
     randomDate = generate_random_date()
     st.session_state.correctDay = randomDate.strftime("%A")
 
-    ###Save Date Formats###
+    ########## SAVE DATE FORMATS ##########
     st.session_state.randomDateEU = randomDate.strftime("%d.%m.%Y")
     st.session_state.randomDateUS = randomDate.strftime("%m/%d/%Y")
     st.session_state.randomDateMonth = randomDate.strftime("%B %d, %Y")
     st.session_state.randomDateMo = randomDate.strftime("%d %b %Y")
 
-    ###Tense Formatting###
+    ########## FORMAT TENSES ##########
     if randomDate > datetime.now().date():
         st.session_state.tense1 = "will"
         st.session_state.tense2 = " be"
@@ -102,8 +95,11 @@ if generateButton == True:
 #Give correct answer for testing
 #st.write(st.session_state.correctDay)
 
+########## DATE GUESSING ##########
 if st.session_state.gameStarted == True:
+    st.write(st.session_state.correctDay)
 
+    ########## QUESTION SELECTBOX ##########
     if dateFormat == "MM/DD/YYYY":
         dayGuess = st.selectbox(f"What day of the week {st.session_state.tense1} {st.session_state.randomDateUS}{st.session_state.tense2}?",("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
     elif dateFormat == "DD.MM.YYYY":
@@ -113,30 +109,46 @@ if st.session_state.gameStarted == True:
     elif dateFormat == "DD Mo YYYY":
         dayGuess = st.selectbox(f"What day of the week {st.session_state.tense1} {st.session_state.randomDateMo}{st.session_state.tense2}?",("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
 
-    ###Guessing Button###
+    ########## GUESSING BUTTON ##########
     guessButton = st.button("Enter Guess")
     if guessButton == True:
         if dayGuess == st.session_state.correctDay:
             st.write("Correct!")
+            st.session_state.totalCorrect += 1
         else:
             st.write("Incorrect")
 
 
 
+########## SCORE METRICS ##########
+
+### ANSWER METRICS ###
 col1, col2, col3, col4 = st.columns(4)
-
-# Place st.metric in each column
 with col1:
-    st.metric(label="Metric 1", value="123", delta="+5")
-    
+    st.metric(label="Total Correct", value=st.session_state.totalCorrect, delta="+1")
 with col2:
-    st.metric(label="Metric 2", value="456", delta="-2")
-    
+    st.metric(label="Percent Correct Guesses", value="100%", delta="+0")
 with col3:
-    st.metric(label="Metric 3", value="789", delta="+10", delta_color="off")
+    st.metric(label="Current Streak", value="4", delta="+1")
+with col4:
+    st.metric(label="Longest Streak", value="10", delta="", delta_color="off")
+
+### TIME METRICS ###
+col1, col2, col3, col4 = st.columns(4)
+with col1:
+    st.metric(label="Previous Answer Time", value="123", delta="+5")
+with col2:
+    st.metric(label="10-Answer Average Time", value="123", delta="+5")
+with col3:
+    st.metric(label="Fastest Time", value="12.25s", delta="+5")
+with col4:
+    st.metric(label="Fastest 10-Answer Average", value="123", delta="+5")
 
 
-###TO DO###
+
+
+
+########## TO DO ##########
 # Option for auto-generate on correct guess
 # timer
 # Overall scorekeeping
@@ -145,6 +157,8 @@ with col3:
 # Other practice: just doomsdays, 12s or 16s practice
 # Check current date, write was if question date is in past or is if in present
 # Add option to write dates in words?
+# Add settings page with all of the options
+# Add option to input answers differently
 
 ###DONE###
 # Answer checking system (use first [0:1] of the guess)
