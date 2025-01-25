@@ -57,9 +57,23 @@ def generate_random_date():
 ########## START SESSION STATE VARIABLES ##########
 if "gameStarted" not in st.session_state:
     st.session_state.gameStarted = False
+if "guessingStarted" not in st.session_state:
+    st.session_state.guessingStarted = False
 
 if "totalCorrect" not in st.session_state:
     st.session_state.totalCorrect = 0
+if "totalIncorrect" not in st.session_state:
+    st.session_state.totalIncorrect = 0
+if "totalGuesses" not in st.session_state:
+    st.session_state.totalGuesses = 0
+if "currentStreak" not in st.session_state:
+    st.session_state.currentStreak = 0
+if "longestStreak" not in st.session_state:
+    st.session_state.longestStreak = 0
+
+if "guessPercentage" not in st.session_state:
+    st.session_state.guessPercentage = 0
+
 
 
 
@@ -95,7 +109,8 @@ if generateButton == True:
 #Give correct answer for testing
 #st.write(st.session_state.correctDay)
 
-########## DATE GUESSING ##########
+
+########## ONCE GAME STARTED ##########
 if st.session_state.gameStarted == True:
     st.write(st.session_state.correctDay)
 
@@ -114,38 +129,62 @@ if st.session_state.gameStarted == True:
     if guessButton == True:
         if dayGuess == st.session_state.correctDay:
             st.write("Correct!")
+
+
             st.session_state.totalCorrect += 1
+            st.session_state.currentStreak += 1
+            st.session_state.totalGuesses += 1
+
         else:
             st.write("Incorrect")
 
+            st.session_state.totalIncorrect += 1
+            st.session_state.currentStreak = 0
+            st.session_state.totalGuesses += 1
+
+        if st.session_state.currentStreak > st.session_state.longestStreak:
+                st.session_state.longestStreak = st.session_state.currentStreak
+                
+        st.session_state.oldGuessPercentage = st.session_state.guessPercentage
+        st.session_state.guessPercentage = 100*int(st.session_state.totalCorrect)/int(st.session_state.totalGuesses)
+
+
+
+        st.session_state.guessingStarted = True
 
 
 ########## SCORE METRICS ##########
 
 ### ANSWER METRICS ###
-col1, col2, col3, col4 = st.columns(4)
-with col1:
-    st.metric(label="Total Correct", value=st.session_state.totalCorrect, delta="+1")
-with col2:
-    st.metric(label="Percent Correct Guesses", value="100%", delta="+0")
-with col3:
-    st.metric(label="Current Streak", value="4", delta="+1")
-with col4:
-    st.metric(label="Longest Streak", value="10", delta="", delta_color="off")
+if st.session_state.guessingStarted == True:
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric(label="Total Correct", value=st.session_state.totalCorrect)
+    with col2:
+        if st.session_state.totalGuesses < 2:
+            st.session_state.guessPercentageDelta = ""
+        else:
+            st.session_state.guessPercentageDelta = f"{st.session_state.guessPercentage - st.session_state.oldGuessPercentage :.2f}%" 
 
-### TIME METRICS ###
-col1, col2, col3, col4 = st.columns(4)
-with col1:
-    st.metric(label="Previous Answer Time", value="123", delta="+5")
-with col2:
-    st.metric(label="10-Answer Average Time", value="123", delta="+5")
-with col3:
-    st.metric(label="Fastest Time", value="12.25s", delta="+5")
-with col4:
-    st.metric(label="Fastest 10-Answer Average", value="123", delta="+5")
+        st.metric(label="Percent Correct Guesses", value= f"{st.session_state.guessPercentage:.2f}%", delta=st.session_state.guessPercentageDelta)
+    with col3:
+        st.metric(label="Current Streak", value=st.session_state.currentStreak)
+    with col4:
+        st.metric(label="Longest Streak", value=st.session_state.longestStreak)
+
+    ### TIME METRICS ###
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric(label="Previous Answer Time", value="123", delta="+5", delta_color="inverse")
+    with col2:
+        st.metric(label="10-Answer Average Time", value="123", delta="+5", delta_color="inverse")
+    with col3:
+        st.metric(label="Fastest Time", value="12.25s")
+    with col4:
+        st.metric(label="Fastest 10-Answer Average", value="123")
 
 
-
+#if guess percentage 0, delta = "" else delta = now-old
 
 
 ########## TO DO ##########
@@ -159,6 +198,8 @@ with col4:
 # Add option to write dates in words?
 # Add settings page with all of the options
 # Add option to input answers differently
+# Remove enter guess button when answered correctly
+# Reset stats button?
 
 ###DONE###
 # Answer checking system (use first [0:1] of the guess)
