@@ -3,54 +3,9 @@ import random
 from datetime import datetime, timedelta
 
 
+
 ########## HEADER ##########
 st.header("Date Practice!", divider="rainbow")
-
-
-
-########## FORMAT QUESTION ##########
-dateFormat = st.selectbox("Date Format", ["MM/DD/YYYY", "DD.MM.YYYY", "Month DD, YYYY", "DD Mo YYYY"])
-#dateFormat = "MM/DD/YYYY"
-
-if dateFormat == "MM/DD/YYYY" or dateFormat == "Month DD, YYYY":
-    calendarDateFormat = "MM/DD/YYYY"
-else:
-    calendarDateFormat = "DD.MM.YYYY"
-
-
-
-########## CUSTOM RANGE ##########
-st.markdown('#####')
-
-customRange = st.toggle("Custom date range?")
-
-if customRange == False:
-    startDate = datetime(1900,1,1).date()
-    endDate = datetime(2100,1,1).date()
-
-if customRange == True:
-    startDate = st.date_input("Start of custom range", min_value=datetime(1600,1,1), max_value=datetime(2600,1,1), format=calendarDateFormat)
-    endDate = st.date_input("End of custom range", min_value=startDate, max_value=datetime(2600,1,1), format=calendarDateFormat)
-
-
-
-########## DATE RANGE HEADER ##########
-if dateFormat == "MM/DD/YYYY":
-    st.subheader(f"Date Range: {startDate.strftime("%m/%d/%Y")} to {endDate.strftime("%m/%d/%Y")}")
-elif dateFormat == "DD.MM.YYYY":
-    st.subheader(f"Date Range: {startDate.strftime("%d.%m.%Y")} to {endDate.strftime("%d.%m.%Y")}")
-elif dateFormat == "Month DD, YYYY":
-    st.subheader(f"Date Range: {startDate.strftime("%B %d, %Y")} to {endDate.strftime("%B %d, %Y")}")
-elif dateFormat == "DD Mo YYYY":
-    st.subheader(f"Date Range: {startDate.strftime("%d %b %Y")} to {endDate.strftime("%d %b %Y")}")
-
-
-
-########## RANDOM DATE GENERATION ##########
-def generate_random_date():
-    randomDays = random.randint(0, (endDate - startDate).days)
-    randomDate = startDate + timedelta(days=randomDays)
-    return randomDate
 
 
 
@@ -59,6 +14,13 @@ if "gameStarted" not in st.session_state:
     st.session_state.gameStarted = False
 if "guessingStarted" not in st.session_state:
     st.session_state.guessingStarted = False
+
+if "startDate" not in st.session_state:
+    st.session_state.startDate = datetime(1900,1,1).date()
+if "endDate" not in st.session_state:
+    st.session_state.endDate = datetime(2100,1,1).date()
+if "dateFormat" not in st.session_state:
+    st.session_state.dateFormat = "MM/DD/YYYY"
 
 if "totalCorrect" not in st.session_state:
     st.session_state.totalCorrect = 0
@@ -74,6 +36,58 @@ if "longestStreak" not in st.session_state:
 if "guessPercentage" not in st.session_state:
     st.session_state.guessPercentage = 0
 
+
+
+########## DATE RANGE HEADER ##########
+dateRangeSubheader = st.empty()
+
+
+
+########## EXTRA OPTIONS EXPANDER ##########
+with st.expander("Extra Date Options"):
+
+    ########## FORMAT QUESTION ##########
+    st.session_state.dateFormat = st.selectbox("Date Format", ["MM/DD/YYYY", "DD.MM.YYYY", "Month DD, YYYY", "DD Mo YYYY"])
+
+    if st.session_state.dateFormat == "MM/DD/YYYY" or st.session_state.dateFormat == "Month DD, YYYY":
+        calendarDateFormat = "MM/DD/YYYY"
+    else:
+        calendarDateFormat = "DD.MM.YYYY"
+    
+
+
+    ########## CUSTOM RANGE ##########
+    st.divider()
+
+    customRange = st.toggle("Custom date range?")
+
+    if customRange == False:
+        st.session_state.startDate = datetime(1900,1,1).date()
+        st.session_state.endDate = datetime(2100,1,1).date()
+
+    if customRange == True:
+        st.session_state.startDate = st.date_input("Start of custom range", min_value=datetime(1600,1,1), max_value=datetime(2600,1,1), format=calendarDateFormat)
+        st.session_state.endDate = st.date_input("End of custom range", min_value=st.session_state.startDate, max_value=datetime(2600,1,1), format=calendarDateFormat)
+
+
+
+    ########## DATE RANGE HEADER ##########
+    if st.session_state.dateFormat == "MM/DD/YYYY":
+        dateRangeSubheader.subheader(f"Date Range: {st.session_state.startDate.strftime("%m/%d/%Y")} to {st.session_state.endDate.strftime("%m/%d/%Y")}")
+    elif st.session_state.dateFormat == "DD.MM.YYYY":
+        dateRangeSubheader.subheader(f"Date Range: {st.session_state.startDate.strftime("%d.%m.%Y")} to {st.session_state.endDate.strftime("%d.%m.%Y")}")
+    elif st.session_state.dateFormat == "Month DD, YYYY":
+        dateRangeSubheader.subheader(f"Date Range: {st.session_state.startDate.strftime("%B %d, %Y")} to {st.session_state.endDate.strftime("%B %d, %Y")}")
+    elif st.session_state.dateFormat == "DD Mo YYYY":
+        dateRangeSubheader.subheader(f"Date Range: {st.session_state.startDate.strftime("%d %b %Y")} to {st.session_state.endDate.strftime("%d %b %Y")}")
+
+
+
+########## RANDOM DATE GENERATION ##########
+def generate_random_date():
+    randomDays = random.randint(0, (st.session_state.endDate - st.session_state.startDate).days)
+    randomDate = st.session_state.startDate + timedelta(days=randomDays)
+    return randomDate
 
 
 
@@ -115,28 +129,32 @@ if st.session_state.gameStarted == True:
     st.write(st.session_state.correctDay)
 
     ########## QUESTION SELECTBOX ##########
-    if dateFormat == "MM/DD/YYYY":
+    if st.session_state.dateFormat == "MM/DD/YYYY":
         dayGuess = st.selectbox(f"What day of the week {st.session_state.tense1} {st.session_state.randomDateUS}{st.session_state.tense2}?",("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
-    elif dateFormat == "DD.MM.YYYY":
+    elif st.session_state.dateFormat == "DD.MM.YYYY":
         dayGuess = st.selectbox(f"What day of the week {st.session_state.tense1} {st.session_state.randomDateEU}{st.session_state.tense2}?",("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
-    elif dateFormat == "Month DD, YYYY":
+    elif st.session_state.dateFormat == "Month DD, YYYY":
         dayGuess = st.selectbox(f"What day of the week {st.session_state.tense1} {st.session_state.randomDateMonth}{st.session_state.tense2}?",("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
-    elif dateFormat == "DD Mo YYYY":
+    elif st.session_state.dateFormat == "DD Mo YYYY":
         dayGuess = st.selectbox(f"What day of the week {st.session_state.tense1} {st.session_state.randomDateMo}{st.session_state.tense2}?",("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
 
     ########## GUESSING BUTTON ##########
     guessButton = st.button("Enter Guess")
+    col1, col2 = st.columns(2)
+    with col2:
+        st.write("⠀")
     if guessButton == True:
         if dayGuess == st.session_state.correctDay:
-            st.write("Correct!")
-
+            with col1:
+                st.write("Correct!")
 
             st.session_state.totalCorrect += 1
             st.session_state.currentStreak += 1
             st.session_state.totalGuesses += 1
 
         else:
-            st.write("Incorrect")
+            with col1:
+                st.write("Incorrect")
 
             st.session_state.totalIncorrect += 1
             st.session_state.currentStreak = 0
@@ -144,7 +162,7 @@ if st.session_state.gameStarted == True:
 
         if st.session_state.currentStreak > st.session_state.longestStreak:
                 st.session_state.longestStreak = st.session_state.currentStreak
-                
+
         st.session_state.oldGuessPercentage = st.session_state.guessPercentage
         st.session_state.guessPercentage = 100*int(st.session_state.totalCorrect)/int(st.session_state.totalGuesses)
 
@@ -154,9 +172,8 @@ if st.session_state.gameStarted == True:
 
 
 ########## SCORE METRICS ##########
-
-### ANSWER METRICS ###
 if st.session_state.guessingStarted == True:
+    ### ANSWER METRICS ###
     col1, col2, col3, col4 = st.columns(4)
     with col1:
         st.metric(label="Total Correct", value=st.session_state.totalCorrect)
