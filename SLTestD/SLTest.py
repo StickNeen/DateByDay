@@ -16,6 +16,8 @@ if "guessingStarted" not in st.session_state:
     st.session_state.guessingStarted = False
 if "alrGuessedCorrectly" not in st.session_state:
     st.session_state.alrGuessedCorrectly = False
+if "prevAnsCorrect" not in st.session_state:
+    st.session_state.prevAnsCorrect = False
 
 if "startDate" not in st.session_state:
     st.session_state.startDate = datetime(1900,1,1).date()
@@ -131,6 +133,8 @@ def generateButtonPressed():
     ########## RESET ALREADY GUESSED STATUS ##########
     st.session_state.alrGuessedCorrectly = False
 
+    st.session_state.prevAnsCorrect = False
+
 if generateButton == True:
     generateButtonPressed()
 
@@ -188,11 +192,8 @@ if st.session_state.gameStarted == True:
             ########## MARK ALREADY GUESSED ##########
             st.session_state.alrGuessedCorrectly = True
 
-
-            ########## AUTOMATICALLY GENERATE NEW DATE ##########
-            if autoRegen == True:
-                generateButtonPressed()
-                st.rerun()
+            st.session_state.prevAnsCorrect = True
+            
 
         else:
             with col1:
@@ -201,6 +202,7 @@ if st.session_state.gameStarted == True:
             st.session_state.totalIncorrect += 1
             st.session_state.currentStreak = 0
             st.session_state.totalGuesses += 1
+
 
         if st.session_state.currentStreak > st.session_state.longestStreak:
             st.session_state.longestStreak = st.session_state.currentStreak
@@ -257,6 +259,15 @@ if st.session_state.guessingStarted == True:
         st.metric(label="Fastest Time", value=st.session_state.fastestTimeStr)
     with col4:
         st.metric(label="Fastest 10-Answer Average", value="123")
+
+
+########## AUTOMATICALLY GENERATE NEW DATE ##########
+if autoRegen == True:
+    if st.session_state.prevAnsCorrect == True:
+        generateButtonPressed()
+        st.rerun()
+
+
 
 
 
