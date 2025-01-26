@@ -7,41 +7,39 @@ from datetime import datetime, timedelta
 ########## HEADER ##########
 st.header("Date Practice!", divider="rainbow")
 
-
-
 ########## START SESSION STATE VARIABLES ##########
-if "gameStarted" not in st.session_state:
-    st.session_state.gameStarted = False
-if "guessingStarted" not in st.session_state:
-    st.session_state.guessingStarted = False
-if "alrGuessedCorrectly" not in st.session_state:
-    st.session_state.alrGuessedCorrectly = False
-if "prevAnsCorrect" not in st.session_state:
+if True:
+    if "gameStarted" not in st.session_state:
+        st.session_state.gameStarted = False
+    if "guessingStarted" not in st.session_state:
+        st.session_state.guessingStarted = False
     st.session_state.prevAnsCorrect = False
+    if "guessButtonDisabled" not in st.session_state:
+        st.session_state.guessButtonDisabled = False
 
-if "startDate" not in st.session_state:
-    st.session_state.startDate = datetime(1900,1,1).date()
-if "endDate" not in st.session_state:
-    st.session_state.endDate = datetime(2100,1,1).date()
-if "dateFormat" not in st.session_state:
-    st.session_state.dateFormat = "MM/DD/YYYY"
+    if "startDate" not in st.session_state:
+        st.session_state.startDate = datetime(1900,1,1).date()
+    if "endDate" not in st.session_state:
+        st.session_state.endDate = datetime(2100,1,1).date()
+    if "dateFormat" not in st.session_state:
+        st.session_state.dateFormat = "MM/DD/YYYY"
 
-if "totalCorrect" not in st.session_state:
-    st.session_state.totalCorrect = 0
-if "totalIncorrect" not in st.session_state:
-    st.session_state.totalIncorrect = 0
-if "totalGuesses" not in st.session_state:
-    st.session_state.totalGuesses = 0
-if "currentStreak" not in st.session_state:
-    st.session_state.currentStreak = 0
-if "longestStreak" not in st.session_state:
-    st.session_state.longestStreak = 0
-if "oldAnswerTime" not in st.session_state:
-    st.session_state.oldAnswerTime = ""
-if "guessPercentage" not in st.session_state:
-    st.session_state.guessPercentage = 0
-if "fastestTime" not in st.session_state:
-    st.session_state.fastestTime = ""
+    if "totalCorrect" not in st.session_state:
+        st.session_state.totalCorrect = 0
+    if "totalIncorrect" not in st.session_state:
+        st.session_state.totalIncorrect = 0
+    if "totalGuesses" not in st.session_state:
+        st.session_state.totalGuesses = 0
+    if "currentStreak" not in st.session_state:
+        st.session_state.currentStreak = 0
+    if "longestStreak" not in st.session_state:
+        st.session_state.longestStreak = 0
+    if "oldAnswerTime" not in st.session_state:
+        st.session_state.oldAnswerTime = ""
+    if "guessPercentage" not in st.session_state:
+        st.session_state.guessPercentage = 0
+    if "fastestTime" not in st.session_state:
+        st.session_state.fastestTime = ""
 
 
 ########## DATE RANGE HEADER ##########
@@ -131,7 +129,7 @@ def generateButtonPressed():
     st.session_state.gameStarted = True
 
     ########## RESET ALREADY GUESSED STATUS ##########
-    st.session_state.alrGuessedCorrectly = False
+    st.session_state.guessButtonDisabled = False
 
     st.session_state.prevAnsCorrect = False
 
@@ -161,16 +159,12 @@ if st.session_state.gameStarted == True:
 
 
     ########## GUESSING BUTTON ##########
-    guessButton = st.button("Enter Guess")
+    guessButton = st.button("Enter Guess", disabled=st.session_state.guessButtonDisabled)
     feedbackCol1, invCol2 = st.columns(2)
     with invCol2:
         st.write("⠀")
-    if guessButton == True:
-        if st.session_state.alrGuessedCorrectly:
-            with feedbackCol1:
-                st.write(f"You already guessed correctly: {st.session_state.correctDay}!")
-        
-        elif dayGuess == st.session_state.correctDay:
+    if guessButton == True:   
+        if dayGuess == st.session_state.correctDay:
             with feedbackCol1:
                 st.write("Correct!")
   
@@ -190,7 +184,7 @@ if st.session_state.gameStarted == True:
             st.session_state.oldAnswerTime = st.session_state.answerTime
 
             ########## MARK ALREADY GUESSED ##########
-            st.session_state.alrGuessedCorrectly = True
+            st.session_state.guessButtonDisabled = True
 
             st.session_state.prevAnsCorrect = True
             
@@ -256,18 +250,19 @@ if st.session_state.guessingStarted == True:
         st.metric(label="Answer Time", value=st.session_state.answerTimeStr, delta=st.session_state.answerTimeDelta, delta_color="inverse")
 
     with col2:
-        st.metric(label="10-Answer Average Time", value="123", delta="0", delta_color="off")
+        st.metric(label="4-Answer Average Time", value="123", delta="0", delta_color="off")
     with col3:
         st.metric(label="Fastest Time", value=st.session_state.fastestTimeStr)
     with col4:
-        st.metric(label="Fastest 10-Answer Average", value="123")
+        st.metric(label="Fastest 4-Answer Average", value="123")
 
 
 ########## AUTOMATICALLY GENERATE NEW DATE ##########
-if autoRegen == True:
-    if st.session_state.prevAnsCorrect == True:
+
+if st.session_state.prevAnsCorrect == True:
+    if autoRegen == True:
         generateButtonPressed()
-        st.rerun()
+    st.rerun()
 
 
 
@@ -283,7 +278,7 @@ if autoRegen == True:
 # Other practice: just doomsdays, 12s or 16s practice
 # Reset stats button?
 # Think about making delta answer time not appear when 0?
-# Disable button when already guessed
+# Better message to tell when correct
 
 ###DONE###
 # Answer checking system (use first [0:1] of the guess)
@@ -296,3 +291,4 @@ if autoRegen == True:
 # Add settings page with all of the options
 # Remove enter guess button when answered correctly
 # Add if precent accuracy is unchanged, delta doesnt appear
+# Disable button when already guessed
