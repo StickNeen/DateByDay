@@ -282,6 +282,8 @@ if autoRegen == True:
 # Link to numberphile video?
 # Other practice: just doomsdays, 12s or 16s practice
 # Reset stats button?
+# Think about making delta answer time not appear when 0?
+# Disable button when already guessed
 
 ###DONE###
 # Answer checking system (use first [0:1] of the guess)
