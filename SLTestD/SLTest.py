@@ -162,16 +162,16 @@ if st.session_state.gameStarted == True:
 
     ########## GUESSING BUTTON ##########
     guessButton = st.button("Enter Guess")
-    col1, col2 = st.columns(2)
-    with col2:
+    feedbackCol1, invCol2 = st.columns(2)
+    with invCol2:
         st.write("⠀")
     if guessButton == True:
         if st.session_state.alrGuessedCorrectly:
-            with col1:
+            with feedbackCol1:
                 st.write(f"You already guessed correctly: {st.session_state.correctDay}!")
         
         elif dayGuess == st.session_state.correctDay:
-            with col1:
+            with feedbackCol1:
                 st.write("Correct!")
   
             ##### UPDATE SCORE METRIC VALUES #####
@@ -196,7 +196,7 @@ if st.session_state.gameStarted == True:
             
 
         else:
-            with col1:
+            with feedbackCol1:
                 st.write("Incorrect")
 
             st.session_state.totalIncorrect += 1
@@ -235,6 +235,8 @@ if st.session_state.guessingStarted == True:
     with col3:
         if st.session_state.totalCorrect < 1:
             st.session_state.guessPercentageDelta = ""
+        elif f"{st.session_state.guessPercentage:.1f}" == f"{st.session_state.oldGuessPercentage:.1f}":
+            st.session_state.guessPercentageDelta = ""
         else:
             st.session_state.guessPercentageDelta = f"{st.session_state.guessPercentage - st.session_state.oldGuessPercentage :.1f}%" 
         st.metric(label="Percent Accuracy", value= f"{st.session_state.guessPercentage:.1f}%", delta=st.session_state.guessPercentageDelta)
@@ -254,7 +256,7 @@ if st.session_state.guessingStarted == True:
         st.metric(label="Answer Time", value=st.session_state.answerTimeStr, delta=st.session_state.answerTimeDelta, delta_color="inverse")
 
     with col2:
-        st.metric(label="10-Answer Average Time", value="123", delta="+5", delta_color="inverse")
+        st.metric(label="10-Answer Average Time", value="123", delta="0", delta_color="off")
     with col3:
         st.metric(label="Fastest Time", value=st.session_state.fastestTimeStr)
     with col4:
@@ -280,8 +282,6 @@ if autoRegen == True:
 # Link to numberphile video?
 # Other practice: just doomsdays, 12s or 16s practice
 # Reset stats button?
-# Add if precent accuracy is unchanged, delta doesnt appear
-# Percent Accuracy not working when automatic generation is on
 
 ###DONE###
 # Answer checking system (use first [0:1] of the guess)
@@ -293,3 +293,4 @@ if autoRegen == True:
 # Add option to write dates in words?
 # Add settings page with all of the options
 # Remove enter guess button when answered correctly
+# Add if precent accuracy is unchanged, delta doesnt appear
