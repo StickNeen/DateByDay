@@ -38,7 +38,8 @@ if "oldAnswerTime" not in st.session_state:
     st.session_state.oldAnswerTime = ""
 if "guessPercentage" not in st.session_state:
     st.session_state.guessPercentage = 0
-
+if "fastestTime" not in st.session_state:
+    st.session_state.fastestTime = ""
 
 
 ########## DATE RANGE HEADER ##########
@@ -202,7 +203,15 @@ if st.session_state.gameStarted == True:
             st.session_state.totalGuesses += 1
 
         if st.session_state.currentStreak > st.session_state.longestStreak:
-                st.session_state.longestStreak = st.session_state.currentStreak
+            st.session_state.longestStreak = st.session_state.currentStreak
+        if st.session_state.totalCorrect > 0:
+            if st.session_state.fastestTime == "":
+                st.session_state.fastestTime = st.session_state.answerTime
+            elif st.session_state.answerTime < st.session_state.fastestTime:
+                st.session_state.fastestTime = st.session_state.answerTime
+            st.session_state.fastestTimeStr = f"{st.session_state.fastestTime:.2f}s"
+        else:
+            st.session_state.fastestTimeStr = "N/A"        
 
         st.session_state.oldGuessPercentage = st.session_state.guessPercentage
         st.session_state.guessPercentage = 100*int(st.session_state.totalCorrect)/int(st.session_state.totalGuesses)
@@ -245,7 +254,7 @@ if st.session_state.guessingStarted == True:
     with col2:
         st.metric(label="10-Answer Average Time", value="123", delta="+5", delta_color="inverse")
     with col3:
-        st.metric(label="Fastest Time", value="12.25s")
+        st.metric(label="Fastest Time", value=st.session_state.fastestTimeStr)
     with col4:
         st.metric(label="Fastest 10-Answer Average", value="123")
 
@@ -261,6 +270,7 @@ if st.session_state.guessingStarted == True:
 # Other practice: just doomsdays, 12s or 16s practice
 # Reset stats button?
 # Add if precent accuracy is unchanged, delta doesnt appear
+# Percent Accuracy not working when automatic generation is on
 
 ###DONE###
 # Answer checking system (use first [0:1] of the guess)
