@@ -41,10 +41,16 @@ if True:
         st.session_state.guessPercentage = 0
     if "fastestTime" not in st.session_state:
         st.session_state.fastestTime = ""
+    if "fastestFourAnsAvg" not in st.session_state:
+        st.session_state.fastestFourAnsAvg = ""
     if "ansTimesList" not in st.session_state:
-        st.session_state.ansTimesList = deque(maxlen=4)
+        st.session_state.ansTimesList = deque(maxlen=5)
     if "fourAnsAvgList" not in st.session_state:
         st.session_state.fourAnsAvgList = deque(maxlen=2)
+    if "allTimesList" not in st.session_state:
+        st.session_state.allTimesList = []
+    if "allTimeAvgList" not in st.session_state:
+        st.session_state.allTimeAvgList = deque(maxlen=2)
 
 
 
@@ -184,11 +190,20 @@ if st.session_state.gameStarted == True:
             st.session_state.answerTime = st.session_state.timerEnd-st.session_state.timerStart
 
             st.session_state.ansTimesList.append(st.session_state.answerTime)
-            st.session_state.fourAnsAvg = sum(st.session_state.ansTimesList)/4
+            st.session_state.fourAnsAvg = sum(st.session_state.ansTimesList)/len(st.session_state.ansTimesList)
             st.session_state.fourAnsAvgList.append(st.session_state.fourAnsAvg)
 
+            st.session_state.allTimesList.append(st.session_state.answerTime)
+            st.session_state.allTimeAvg = sum(st.session_state.allTimesList)/len(st.session_state.allTimesList)
+            st.session_state.allTimeAvgList.append(st.session_state.allTimeAvg)
+
             if st.session_state.totalCorrect > 1:
-                st.session_state.answerTimeDelta = f"{st.session_state.answerTime - st.session_state.oldAnswerTime:.2f}s"
+                if f"{st.session_state.answerTime - st.session_state.oldAnswerTime:.2f}s" != "0.00s":
+                    st.session_state.answerTimeDelta = f"{st.session_state.answerTime - st.session_state.oldAnswerTime:.2f}s"
+                else:
+                    st.session_state.answerTimeDelta = ""
+            else:
+                st.session_state.answerTimeDelta = ""
 
             st.session_state.answerTimeStr = f"{st.session_state.answerTime:.2f}s"
             st.session_state.oldAnswerTime = st.session_state.answerTime
@@ -210,6 +225,17 @@ if st.session_state.gameStarted == True:
 
         if st.session_state.currentStreak > st.session_state.longestStreak:
             st.session_state.longestStreak = st.session_state.currentStreak
+
+        
+        if st.session_state.totalCorrect > 4:
+            if st.session_state.fastestFourAnsAvg == "":
+                st.session_state.fastestFourAnsAvg = st.session_state.fourAnsAvg
+            elif st.session_state.fourAnsAvg < st.session_state.fastestFourAnsAvg:
+                st.session_state.fastestFourAnsAvg = st.session_state.fourAnsAvg
+            st.session_state.fastestFourAnsAvgStr = f"{st.session_state.fastestFourAnsAvg:.2f}s"
+        else:
+            st.session_state.fastestFourAnsAvgStr = "N/A"
+
         if st.session_state.totalCorrect > 0:
             if st.session_state.fastestTime == "":
                 st.session_state.fastestTime = st.session_state.answerTime
@@ -251,32 +277,44 @@ if st.session_state.guessingStarted == True:
 
     ### TIME METRICS ###
     col1, col2, col3, col4, col5 = st.columns(5)
-    with col1:
-        if st.session_state.totalCorrect < 2:
-            st.session_state.answerTimeDelta = ""
+    with col1:     
         if st.session_state.totalCorrect == 0:
             st.session_state.answerTimeStr = "N/A"
 
         st.metric(label="Answer Time", value=st.session_state.answerTimeStr, delta=st.session_state.answerTimeDelta, delta_color="inverse")
 
     with col2:
-        if len(st.session_state.ansTimesList) < 4:
+        if len(st.session_state.ansTimesList) < 5:
             st.session_state.fourAnsAvgStr = "N/A"
         else:
             st.session_state.fourAnsAvgStr = f"{st.session_state.fourAnsAvg:.2f}s"
 
-        if st.session_state.totalCorrect < 5:
+        if st.session_state.totalCorrect < 6:
+            st.session_state.fourAnsAvgDelta = ""
+        elif f"{st.session_state.fourAnsAvgList[1] - st.session_state.fourAnsAvgList[0]:.2f}s" == "0.00s":
             st.session_state.fourAnsAvgDelta = ""
         else:
             st.session_state.fourAnsAvgDelta = f"{st.session_state.fourAnsAvgList[1] - st.session_state.fourAnsAvgList[0]:.2f}s"
         
-        st.metric(label="4-Answer Avg Time", value=st.session_state.fourAnsAvgStr, delta=st.session_state.fourAnsAvgDelta, delta_color= "inverse")
+        st.metric(label="5-Answer Avg Time", value=st.session_state.fourAnsAvgStr, delta=st.session_state.fourAnsAvgDelta, delta_color= "inverse")
     with col3:
         st.metric(label="Fastest Time", value=st.session_state.fastestTimeStr)
     with col4:
-        st.metric(label="Fastest 4-Answer Avg", value="123")
+        st.metric(label="Fastest 5-Answer Avg", value=st.session_state.fastestFourAnsAvgStr)
     with col5:
-        st.metric(label="Overall Avg Time", value= "12s", delta="")
+        if st.session_state.totalCorrect == 0:
+            st.session_state.allTimeAvgStr = "N/A"
+        else:
+            st.session_state.allTimeAvgStr = f"{st.session_state.allTimeAvg:.2f}s"
+
+        if st.session_state.totalCorrect < 2:
+            st.session_state.allTimeAvgDelta = ""
+        elif f"{st.session_state.allTimeAvgList[1] - st.session_state.allTimeAvgList[0]:.2f}s" == "0.00s":
+            st.session_state.allTimeAvgDelta = ""
+        else:
+            st.session_state.allTimeAvgDelta = f"{st.session_state.allTimeAvgList[1] - st.session_state.allTimeAvgList[0]:.2f}s"
+
+        st.metric(label="Overall Avg Time", value= st.session_state.allTimeAvgStr, delta=st.session_state.allTimeAvgDelta, delta_color= "inverse")
 
 
 ########## AUTOMATICALLY GENERATE NEW DATE ##########
