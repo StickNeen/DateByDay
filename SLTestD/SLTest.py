@@ -1,6 +1,7 @@
 import streamlit as st
 import random
 from datetime import datetime, timedelta
+from collections import deque
 
 
 
@@ -40,6 +41,11 @@ if True:
         st.session_state.guessPercentage = 0
     if "fastestTime" not in st.session_state:
         st.session_state.fastestTime = ""
+    if "ansTimesList" not in st.session_state:
+        st.session_state.ansTimesList = deque(maxlen=4)
+    if "fourAnsAvgList" not in st.session_state:
+        st.session_state.fourAnsAvgList = deque(maxlen=2)
+
 
 
 ########## DATE RANGE HEADER ##########
@@ -177,6 +183,10 @@ if st.session_state.gameStarted == True:
             st.session_state.timerEnd = datetime.now().time().hour*3600 + datetime.now().time().minute * 60 + datetime.now().time().second + datetime.now().time().microsecond / 1000000
             st.session_state.answerTime = st.session_state.timerEnd-st.session_state.timerStart
 
+            st.session_state.ansTimesList.append(st.session_state.answerTime)
+            st.session_state.fourAnsAvg = sum(st.session_state.ansTimesList)/4
+            st.session_state.fourAnsAvgList.append(st.session_state.fourAnsAvg)
+
             if st.session_state.totalCorrect > 1:
                 st.session_state.answerTimeDelta = f"{st.session_state.answerTime - st.session_state.oldAnswerTime:.2f}s"
 
@@ -240,7 +250,7 @@ if st.session_state.guessingStarted == True:
         st.metric(label="Longest Streak", value=st.session_state.longestStreak)
 
     ### TIME METRICS ###
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4, col5 = st.columns(5)
     with col1:
         if st.session_state.totalCorrect < 2:
             st.session_state.answerTimeDelta = ""
@@ -250,11 +260,23 @@ if st.session_state.guessingStarted == True:
         st.metric(label="Answer Time", value=st.session_state.answerTimeStr, delta=st.session_state.answerTimeDelta, delta_color="inverse")
 
     with col2:
-        st.metric(label="4-Answer Average Time", value="123", delta="0", delta_color="off")
+        if len(st.session_state.ansTimesList) < 4:
+            st.session_state.fourAnsAvgStr = "N/A"
+        else:
+            st.session_state.fourAnsAvgStr = f"{st.session_state.fourAnsAvg:.2f}s"
+
+        if st.session_state.totalCorrect < 5:
+            st.session_state.fourAnsAvgDelta = ""
+        else:
+            st.session_state.fourAnsAvgDelta = f"{st.session_state.fourAnsAvgList[1] - st.session_state.fourAnsAvgList[0]:.2f}s"
+        
+        st.metric(label="4-Answer Avg Time", value=st.session_state.fourAnsAvgStr, delta=st.session_state.fourAnsAvgDelta, delta_color= "inverse")
     with col3:
         st.metric(label="Fastest Time", value=st.session_state.fastestTimeStr)
     with col4:
-        st.metric(label="Fastest 4-Answer Average", value="123")
+        st.metric(label="Fastest 4-Answer Avg", value="123")
+    with col5:
+        st.metric(label="Overall Avg Time", value= "12s", delta="")
 
 
 ########## AUTOMATICALLY GENERATE NEW DATE ##########
@@ -269,7 +291,6 @@ if st.session_state.prevAnsCorrect == True:
 
 
 
-
 ########## TO DO ##########
 # timer
 # Overall scorekeeping
@@ -278,7 +299,8 @@ if st.session_state.prevAnsCorrect == True:
 # Other practice: just doomsdays, 12s or 16s practice
 # Reset stats button?
 # Think about making delta answer time not appear when 0?
-# Better message to tell when correct
+# Better message to tell when correct (use same thing as date range header)
+# Redo all deltas with deques
 
 ###DONE###
 # Answer checking system (use first [0:1] of the guess)
