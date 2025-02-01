@@ -24,6 +24,8 @@ if True:
         st.session_state.endDate = datetime(2100,1,1).date()
     if "dateFormat" not in st.session_state:
         st.session_state.dateFormat = "MM/DD/YYYY"
+    if "feedbackTextStr" not in st.session_state:
+        st.session_state.feedbackTextStr = ""
 
     if "totalCorrect" not in st.session_state:
         st.session_state.totalCorrect = 0
@@ -142,8 +144,10 @@ def generateButtonPressed():
 
     ########## RESET ALREADY GUESSED STATUS ##########
     st.session_state.guessButtonDisabled = False
-
     st.session_state.prevAnsCorrect = False
+
+    st.session_state.feedbackTextStr = ""
+
 
 if generateButton == True:
     generateButtonPressed()
@@ -152,33 +156,40 @@ if generateButton == True:
 #st.write(st.session_state.correctDay)
 
 
+########## SET FEEDBACK IF PILLS CHANGE ##########
+def onPillChange():
+    if st.session_state.feedbackTextStr == "<h3 style='color: red;'>Incorrect</h3>":
+        st.session_state.feedbackTextStr = ""
+
+
+
 ########## ONCE GAME STARTED ##########
 if st.session_state.gameStarted == True:
-    st.write(st.session_state.correctDay)
+    #st.write(st.session_state.correctDay)
 
     ########## QUESTION SELECTBOX ##########
     daysOfWeek = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
 
     
     if st.session_state.dateFormat == "MM/DD/YYYY":
-            dayGuess = st.pills(f"What day of the week {st.session_state.tense1} {st.session_state.randomDateUS}{st.session_state.tense2}?",(daysOfWeek))
+        dayGuess = st.pills(f"What day of the week {st.session_state.tense1} {st.session_state.randomDateUS}{st.session_state.tense2}?",(daysOfWeek), key= "inputPill", on_change=onPillChange)
     elif st.session_state.dateFormat == "DD.MM.YYYY":
-        dayGuess = st.pills(f"What day of the week {st.session_state.tense1} {st.session_state.randomDateEU}{st.session_state.tense2}?",(daysOfWeek))
+        dayGuess = st.pills(f"What day of the week {st.session_state.tense1} {st.session_state.randomDateEU}{st.session_state.tense2}?",(daysOfWeek), key= "inputPill", on_change=onPillChange)
     elif st.session_state.dateFormat == "Month DD, YYYY":
-        dayGuess = st.pills(f"What day of the week {st.session_state.tense1} {st.session_state.randomDateMonth}{st.session_state.tense2}?",(daysOfWeek))
+        dayGuess = st.pills(f"What day of the week {st.session_state.tense1} {st.session_state.randomDateMonth}{st.session_state.tense2}?",(daysOfWeek), key= "inputPill", on_change=onPillChange)
     elif st.session_state.dateFormat == "DD Mo YYYY":
-        dayGuess = st.pills(f"What day of the week {st.session_state.tense1} {st.session_state.randomDateMo}{st.session_state.tense2}?",(daysOfWeek))
+        dayGuess = st.pills(f"What day of the week {st.session_state.tense1} {st.session_state.randomDateMo}{st.session_state.tense2}?",(daysOfWeek), key= "inputPill", on_change=onPillChange)
 
 
     ########## GUESSING BUTTON ##########
     guessButton = st.button("Enter Guess", disabled=st.session_state.guessButtonDisabled)
     feedbackCol1, invCol2 = st.columns(2)
-    with invCol2:
-        st.write("⠀")
+    #with invCol2:
+    #    st.write("⠀")
     if guessButton == True:   
         if dayGuess == st.session_state.correctDay:
-            with feedbackCol1:
-                st.write("Correct!")
+            st.session_state.feedbackTextStr = "<h3 style='color: green;'>Correct!</h3>"
+            #using feedback int and prevanswer correct, make color text update on the second update outside of any loops (bc it auto reruns each time) but only for incorrect so if you switch your answer the text goes away
   
             ##### UPDATE SCORE METRIC VALUES #####
             st.session_state.totalCorrect += 1
@@ -215,8 +226,7 @@ if st.session_state.gameStarted == True:
             
 
         else:
-            with feedbackCol1:
-                st.write("Incorrect")
+            st.session_state.feedbackTextStr = "<h3 style='color: red;'>Incorrect</h3>"
 
             st.session_state.totalIncorrect += 1
             st.session_state.currentStreak = 0
@@ -252,6 +262,8 @@ if st.session_state.gameStarted == True:
         st.session_state.guessingStarted = True
 
 
+st.markdown(st.session_state.feedbackTextStr, unsafe_allow_html=True)
+
 st.divider()
 
 ########## SCORE METRICS ##########
@@ -280,6 +292,8 @@ if st.session_state.guessingStarted == True:
     with col1:     
         if st.session_state.totalCorrect == 0:
             st.session_state.answerTimeStr = "N/A"
+        if st.session_state.totalCorrect < 2:
+            st.session_state.answerTimeDelta = ""
 
         st.metric(label="Answer Time", value=st.session_state.answerTimeStr, delta=st.session_state.answerTimeDelta, delta_color="inverse")
 
@@ -328,16 +342,11 @@ if st.session_state.prevAnsCorrect == True:
 
 
 
-
 ########## TO DO ##########
-# timer
-# Overall scorekeeping
 # Intro and other explanation pages
 # Link to numberphile video?
 # Other practice: just doomsdays, 12s or 16s practice
 # Reset stats button?
-# Think about making delta answer time not appear when 0?
-# Better message to tell when correct (use same thing as date range header)
 # Redo all deltas with deques
 
 ###DONE###
@@ -352,3 +361,7 @@ if st.session_state.prevAnsCorrect == True:
 # Remove enter guess button when answered correctly
 # Add if precent accuracy is unchanged, delta doesnt appear
 # Disable button when already guessed
+# timer
+# Overall scorekeeping
+# Think about making delta answer time not appear when 0?
+# Better message to tell when correct (use same thing as date range header)
