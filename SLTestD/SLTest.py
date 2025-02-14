@@ -6,7 +6,7 @@ from collections import deque
 
 
 ########## HEADER ##########
-st.header("Date Practice!", divider="rainbow")
+st.header("Guess the Day of the Week!", divider="rainbow")
 
 ########## START SESSION STATE VARIABLES ##########
 if True:
@@ -207,7 +207,7 @@ if st.session_state.gameStarted == True:
     #    st.write("⠀")
     if guessButton == True:   
         if dayGuess == st.session_state.correctDay:
-            st.session_state.feedbackTextStr = "<h3 style='color: green;'>Correct!</h3>"
+            st.session_state.feedbackTextStr = "<h3 style='color: green;'>Correct!⠀:D</h3>"
             #using feedback int and prevanswer correct, make color text update on the second update outside of any loops (bc it auto reruns each time) but only for incorrect so if you switch your answer the text goes away
   
             ##### UPDATE SCORE METRIC VALUES #####
@@ -245,7 +245,7 @@ if st.session_state.gameStarted == True:
             
 
         else:
-            st.session_state.feedbackTextStr = "<h3 style='color: red;'>Incorrect</h3>"
+            st.session_state.feedbackTextStr = "<h3 style='color: red;'>Incorrect⠀:(</h3>"
 
             st.session_state.totalIncorrect += 1
             st.session_state.currentStreak = 0
