@@ -17,6 +17,9 @@ if True:
     st.session_state.prevAnsCorrect = False
     if "guessButtonDisabled" not in st.session_state:
         st.session_state.guessButtonDisabled = False
+    if "resetStatsButton" not in st.session_state:
+        st.session_state.resetStatsButton = False
+        
 
     if "startDate" not in st.session_state:
         st.session_state.startDate = datetime(1900,1,1).date()
@@ -165,7 +168,7 @@ def onPillChange():
 
 ########## ONCE GAME STARTED ##########
 if st.session_state.gameStarted == True:
-    #st.write(st.session_state.correctDay)
+    st.write(st.session_state.correctDay)
 
     ########## QUESTION SELECTBOX ##########
     daysOfWeek = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
@@ -331,9 +334,37 @@ if st.session_state.guessingStarted == True:
         st.metric(label="Overall Avg Time", value= st.session_state.allTimeAvgStr, delta=st.session_state.allTimeAvgDelta, delta_color= "inverse")
 
 
+    ########## RESET STATS BUTTON ##########
+
+    def resetStats():
+        st.write("resetting")
+        st.session_state.totalCorrect = 0
+        st.session_state.totalIncorrect = 0
+        st.session_state.totalGuesses = 0
+        st.session_state.currentStreak = 0
+        st.session_state.longestStreak = 0
+        st.session_state.oldAnswerTime = ""
+        st.session_state.guessPercentage = 0
+        st.session_state.fastestTime = ""
+        st.session_state.fastestFourAnsAvg = ""
+        st.session_state.ansTimesList = deque(maxlen=5)
+        st.session_state.fourAnsAvg = 0
+        st.session_state.fourAnsAvgList = deque(maxlen=2)
+        st.session_state.allTimesList = []
+        st.session_state.allTimeAvgList = deque(maxlen=2)
+        st.session_state.fastestFourAnsAvgStr = "N/A"
+        st.session_state.fastestTimeStr = "N/A"
+
+    st.session_state.resetStatsButton = st.button("Reset Stats")
+    if st.session_state.resetStatsButton == True:
+        resetStats()
+
+
+
 ########## AUTOMATICALLY GENERATE NEW DATE ##########
 
-if st.session_state.prevAnsCorrect == True:
+if st.session_state.prevAnsCorrect == True or st.session_state.resetStatsButton == True:
+    st.session_state.resetStatsButton = False
     if autoRegen == True:
         generateButtonPressed()
     st.rerun()
