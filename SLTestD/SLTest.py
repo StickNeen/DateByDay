@@ -19,7 +19,6 @@ if True:
         st.session_state.guessButtonDisabled = False
     if "resetStatsButton" not in st.session_state:
         st.session_state.resetStatsButton = False
-        
 
     if "startDate" not in st.session_state:
         st.session_state.startDate = datetime(1900,1,1).date()
@@ -65,7 +64,7 @@ dateRangeSubheader = st.empty()
 
 
 ########## EXTRA OPTIONS EXPANDER ##########
-with st.expander("Extra Date Options"):
+with st.expander("Options"):
 
     ########## FORMAT QUESTION ##########
     st.session_state.dateFormat = st.selectbox("Date Format", ["MM/DD/YYYY", "DD.MM.YYYY", "Month DD, YYYY", "DD Mo YYYY"])
@@ -91,6 +90,14 @@ with st.expander("Extra Date Options"):
 
 
 
+    ########## AUTO REGENERATE ON CORRECT ANSWER ##########
+    autoRegen = st.toggle("Automatically generate new date on correct answer?")
+
+
+    ########## SHOW ANSWER TOGGLE ##########
+    st.session_state.showAnswerToggle = st.toggle("Show the answer? (This is cheating... but feel free!)")
+
+
     ########## DATE RANGE HEADER ##########
     if st.session_state.dateFormat == "MM/DD/YYYY":
         dateRangeSubheader.subheader(f"Date Range: {st.session_state.startDate.strftime("%m/%d/%Y")} to {st.session_state.endDate.strftime("%m/%d/%Y")}")
@@ -102,9 +109,6 @@ with st.expander("Extra Date Options"):
         dateRangeSubheader.subheader(f"Date Range: {st.session_state.startDate.strftime("%d %b %Y")} to {st.session_state.endDate.strftime("%d %b %Y")}")
 
 
-
-    ########## AUTO REGENERATE ON CORRECT ANSWER ##########
-    autoRegen = st.toggle("Automatically generate new date on correct answer?")
     
 
 
@@ -168,7 +172,19 @@ def onPillChange():
 
 ########## ONCE GAME STARTED ##########
 if st.session_state.gameStarted == True:
-    st.write(st.session_state.correctDay)
+    
+    if st.session_state.showAnswerToggle == True:
+        secretPhrases = ["psst... the answer is", "a little bird told me that it's", 
+        "I have a hunch that the answer is", "don't tell anyone, but the answer is", 
+        "I've got the inside scoop: it's", "I've got a feeling it's", 
+        "if I were you, I'd bet on", "rumor has it that the answer is", "I've cracked the code: it's", 
+        "between you and me, the answer is", "the answer you're looking for is", 
+        "here's a little secret: it's", "I know the answer... it's", 
+        "I happen to know that it's", "you didn't hear it from me, but the answer is", 
+        "I'm not saying it's a guarantee, but I'm pretty sure the answer is", 
+        "in case you were wondering, it's", "you didn't get this from me, but I think it's"]
+        chosenSecretPhrase = random.choice(secretPhrases)
+        st.write(f"({chosenSecretPhrase} {st.session_state.correctDay})")
 
     ########## QUESTION SELECTBOX ##########
     daysOfWeek = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
@@ -377,7 +393,6 @@ if st.session_state.prevAnsCorrect == True or st.session_state.resetStatsButton 
 # Intro and other explanation pages
 # Link to numberphile video?
 # Other practice: just doomsdays, 12s or 16s practice
-# Reset stats button?
 # Redo all deltas with deques
 
 ###DONE###
@@ -396,3 +411,5 @@ if st.session_state.prevAnsCorrect == True or st.session_state.resetStatsButton 
 # Overall scorekeeping
 # Think about making delta answer time not appear when 0?
 # Better message to tell when correct (use same thing as date range header)
+# Reset stats button?
+# Option to show the answer
