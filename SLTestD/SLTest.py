@@ -57,6 +57,19 @@ if True:
         st.session_state.allTimeAvgList = deque(maxlen=2)
 
 
+########## SECRET ANSWER PHASES ##########
+secretPhrases = ["psst... the answer is", "a little bird told me that it's", 
+        "I have a hunch that the answer is", "don't tell anyone, but the answer is", 
+        "I've got the inside scoop: it's", "I've got a feeling it's", 
+        "if I were you, I'd bet on", "rumor has it that the answer is", "I've cracked the code: it's", 
+        "between you and me, the answer is", "the answer you're looking for is", 
+        "here's a little secret: it's", "I know the answer... it's", 
+        "I happen to know that it's", "you didn't hear it from me, but the answer is", 
+        "I'm not saying it's a guarantee, but I'm pretty sure the answer is", 
+        "in case you were wondering, it's", "you didn't get this from me, but I think it's"]
+
+
+
 
 ########## DATE RANGE HEADER ##########
 dateRangeSubheader = st.empty()
@@ -145,6 +158,9 @@ def generateButtonPressed():
         st.session_state.tense1 = "was"
         st.session_state.tense2 = ""
 
+    ########## PICK ANSWER PHRASE ##########
+    st.session_state.chosenSecretPhrase = random.choice(secretPhrases)
+
     ########## START TIMER ##########
     st.session_state.timerStart = datetime.now().time().hour*3600 + datetime.now().time().minute * 60 + datetime.now().time().second + datetime.now().time().microsecond / 1000000
     st.session_state.gameStarted = True
@@ -173,18 +189,8 @@ def onPillChange():
 ########## ONCE GAME STARTED ##########
 if st.session_state.gameStarted == True:
     
-    if st.session_state.showAnswerToggle == True:
-        secretPhrases = ["psst... the answer is", "a little bird told me that it's", 
-        "I have a hunch that the answer is", "don't tell anyone, but the answer is", 
-        "I've got the inside scoop: it's", "I've got a feeling it's", 
-        "if I were you, I'd bet on", "rumor has it that the answer is", "I've cracked the code: it's", 
-        "between you and me, the answer is", "the answer you're looking for is", 
-        "here's a little secret: it's", "I know the answer... it's", 
-        "I happen to know that it's", "you didn't hear it from me, but the answer is", 
-        "I'm not saying it's a guarantee, but I'm pretty sure the answer is", 
-        "in case you were wondering, it's", "you didn't get this from me, but I think it's"]
-        chosenSecretPhrase = random.choice(secretPhrases)
-        st.write(f"({chosenSecretPhrase} {st.session_state.correctDay})")
+    if st.session_state.showAnswerToggle == True:    
+        st.write(f"({st.session_state.chosenSecretPhrase} {st.session_state.correctDay})")
 
     ########## QUESTION SELECTBOX ##########
     daysOfWeek = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
