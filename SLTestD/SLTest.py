@@ -377,14 +377,19 @@ if st.session_state.guessingStarted == True:
 
 
 
+
 ########## AUTOMATICALLY GENERATE NEW DATE ##########
 
-if st.session_state.prevAnsCorrect == True or st.session_state.resetStatsButton == True:
-    st.session_state.resetStatsButton = False
+if st.session_state.prevAnsCorrect == True:
+    
     if autoRegen == True:
         generateButtonPressed()
     st.rerun()
 
+########## RESET STATS BUTTON ##########
+if st.session_state.resetStatsButton == True:
+    st.session_state.resetStatsButton = False
+    st.rerun()
 
 
 
