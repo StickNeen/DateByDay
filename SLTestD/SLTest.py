@@ -20,6 +20,8 @@ if True:
         st.session_state.guessButtonDisabled = False
     if "resetStatsButton" not in st.session_state:
         st.session_state.resetStatsButton = False
+    if "resetGuessesButton" not in st.session_state:
+        st.session_state.resetGuessesButton = False
 
     if "startDate" not in st.session_state:
         st.session_state.startDate = datetime(1900,1,1).date()
@@ -65,6 +67,8 @@ if True:
         st.session_state.pastCorrectDays = []
     if "pastDaysGuessed" not in st.session_state:
         st.session_state.pastDaysGuessed = []
+    if "pastGuessTimes" not in st.session_state:
+        st.session_state.pastGuessTimes = []
     if "IBpastDatesGenerated" not in st.session_state:
         st.session_state.IBpastDatesGenerated = []
     if "IBpastCorrectGuesses" not in st.session_state:
@@ -73,6 +77,8 @@ if True:
         st.session_state.IBpastCorrectDays = []
     if "IBpastDaysGuessed" not in st.session_state:
         st.session_state.IBpastDaysGuessed = []
+    if "IBpastGuessTimes" not in st.session_state:
+        st.session_state.IBpastGuessTimes = []
     
 
 
@@ -180,10 +186,13 @@ def updateDataFrame():
     st.session_state.pastCorrectGuesses = st.session_state.IBpastCorrectGuesses + st.session_state.pastCorrectGuesses
     st.session_state.pastCorrectDays = st.session_state.IBpastCorrectDays + st.session_state.pastCorrectDays
     st.session_state.pastDaysGuessed = st.session_state.IBpastDaysGuessed + st.session_state.pastDaysGuessed
+    st.session_state.pastGuessTimes = st.session_state.IBpastGuessTimes + st.session_state.pastGuessTimes
     st.session_state.IBpastDatesGenerated = []
     st.session_state.IBpastCorrectGuesses = []
     st.session_state.IBpastCorrectDays = []
     st.session_state.IBpastDaysGuessed = []
+    st.session_state.IBpastGuessTimes = []
+    
 
 
 
@@ -370,6 +379,12 @@ if st.session_state.gameStarted == True:
             st.session_state.IBpastCorrectDays.insert(0, st.session_state.correctDay)
             st.session_state.IBpastDaysGuessed.insert(0, dayGuess)
 
+            guessTimeEnd = datetime.now().time().hour*3600 + datetime.now().time().minute * 60 + datetime.now().time().second + datetime.now().time().microsecond / 1000000
+            guessTime = guessTimeEnd-st.session_state.timerStart
+            
+
+            st.session_state.IBpastGuessTimes.insert(0, f"{guessTime:.2f} seconds")
+
             if st.session_state.prevAnsCorrect:
                 updateDataFrame()
 
@@ -484,7 +499,7 @@ if st.session_state.guessingStarted == True:
         "Correct?": st.session_state.pastCorrectGuesses,
         "Correct Weekday": st.session_state.pastCorrectDays,
         "Your Guess": st.session_state.pastDaysGuessed,
-        #"Time": ["3.02s", "12.34s", "1.29s", ""]
+        "Time": st.session_state.pastGuessTimes
     }
 
     pastGuessesDataFrame = pd.DataFrame(pastGuessesData)
@@ -509,10 +524,12 @@ if st.session_state.guessingStarted == True:
             st.session_state.pastCorrectGuesses = []
             st.session_state.pastCorrectDays = []
             st.session_state.pastDaysGuessed = []
+            st.session_state.pastGuessTimes = []
             st.session_state.IBpastDatesGenerated = []
             st.session_state.IBpastCorrectGuesses = []
             st.session_state.IBpastCorrectDays = []
             st.session_state.IBpastDaysGuessed = []
+            st.session_state.IBpastGuessTimes = []
 
         st.session_state.resetGuessesButton = st.button("Reset Past Guesses")
         if st.session_state.resetGuessesButton == True:
