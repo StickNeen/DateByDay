@@ -457,7 +457,6 @@ if st.session_state.guessingStarted == True:
         ########## RESET STATS BUTTON ##########
 
         def resetStats():
-            st.write("resetting")
             st.session_state.totalCorrect = 0
             st.session_state.totalIncorrect = 0
             st.session_state.totalGuesses = 0
@@ -479,7 +478,7 @@ if st.session_state.guessingStarted == True:
         if st.session_state.resetStatsButton == True:
             resetStats()
 
-        ### Data table testing ###
+    ########## PAST GUESSES ##########
     pastGuessesData = {
         "Date": st.session_state.pastDatesGenerated,
         "Correct?": st.session_state.pastCorrectGuesses,
@@ -488,7 +487,6 @@ if st.session_state.guessingStarted == True:
         #"Time": ["3.02s", "12.34s", "1.29s", ""]
     }
 
-
     pastGuessesDataFrame = pd.DataFrame(pastGuessesData)
 
     showTable = st.toggle("Show past guesses")
@@ -496,6 +494,21 @@ if st.session_state.guessingStarted == True:
         st.write("### Past Guesses")
         st.dataframe(pastGuessesDataFrame, use_container_width=True, hide_index = True)
 
+
+        ##### RESET PAST GUESSES BUTTON #####
+        def resetGuesses():
+            st.session_state.pastDatesGenerated = []
+            st.session_state.pastCorrectGuesses = []
+            st.session_state.pastCorrectDays = []
+            st.session_state.pastDaysGuessed = []
+            st.session_state.IBpastDatesGenerated = []
+            st.session_state.IBpastCorrectGuesses = []
+            st.session_state.IBpastCorrectDays = []
+            st.session_state.IBpastDaysGuessed = []
+
+        st.session_state.resetGuessesButton = st.button("Reset Past Guesses")
+        if st.session_state.resetGuessesButton == True:
+            resetGuesses()
 
 
 
@@ -507,16 +520,17 @@ if st.session_state.guessingStarted == True:
 ########## AUTOMATICALLY GENERATE NEW DATE ##########
 
 if st.session_state.prevAnsCorrect == True:
-    
     if autoRegen == True:
         generateButtonPressed()
     st.rerun()
 
 ########## RESET STATS BUTTON ##########
 if st.session_state.resetStatsButton == True:
-    st.session_state.resetStatsButton = False
     st.rerun()
 
+########## RESET GUESSES BUTTON ##########
+if st.session_state.resetGuessesButton == True:
+    st.rerun()
 
 
 
