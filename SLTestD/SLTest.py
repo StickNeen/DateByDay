@@ -489,10 +489,18 @@ if st.session_state.guessingStarted == True:
 
     pastGuessesDataFrame = pd.DataFrame(pastGuessesData)
 
+    def colorCell(val):
+        if val == "Correct":
+            return 'background-color: #93c47d; color: black'
+        elif val == "Incorrect":
+            return 'background-color: #e06666; color: black'
+
+    formattedPGDF = pastGuessesDataFrame.style.applymap(colorCell, subset=["Correct?"])
+
     showTable = st.toggle("Show past guesses")
     if showTable == True:
         st.write("### Past Guesses")
-        st.dataframe(pastGuessesDataFrame, use_container_width=True, hide_index = True)
+        st.dataframe(formattedPGDF, use_container_width=True, hide_index = True)
 
 
         ##### RESET PAST GUESSES BUTTON #####
