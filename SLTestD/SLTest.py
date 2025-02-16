@@ -57,6 +57,24 @@ if True:
     if "allTimeAvgList" not in st.session_state:
         st.session_state.allTimeAvgList = deque(maxlen=2)
 
+    if "pastDatesGenerated" not in st.session_state:
+        st.session_state.pastDatesGenerated = []
+    if "pastCorrectGuesses" not in st.session_state:
+        st.session_state.pastCorrectGuesses = []
+    if "pastCorrectDays" not in st.session_state:
+        st.session_state.pastCorrectDays = []
+    if "pastDaysGuessed" not in st.session_state:
+        st.session_state.pastDaysGuessed = []
+    if "IBpastDatesGenerated" not in st.session_state:
+        st.session_state.IBpastDatesGenerated = []
+    if "IBpastCorrectGuesses" not in st.session_state:
+        st.session_state.IBpastCorrectGuesses = []
+    if "IBpastCorrectDays" not in st.session_state:
+        st.session_state.IBpastCorrectDays = []
+    if "IBpastDaysGuessed" not in st.session_state:
+        st.session_state.IBpastDaysGuessed = []
+    
+
 
 ########## SECRET ANSWER PHASES ##########
 secretPhrases = ["psst... the answer is", "a little bird told me that it's", 
@@ -68,6 +86,17 @@ secretPhrases = ["psst... the answer is", "a little bird told me that it's",
         "I happen to know that it's", "you didn't hear it from me, but the answer is", 
         "I'm not saying it's a guarantee, but I'm pretty sure the answer is", 
         "in case you were wondering, it's", "you didn't get this from me, but I think it's"]
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -123,7 +152,18 @@ with st.expander("Options"):
         dateRangeSubheader.subheader(f"Date Range: {st.session_state.startDate.strftime("%d %b %Y")} to {st.session_state.endDate.strftime("%d %b %Y")}")
 
 
-    
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ########## RANDOM DATE GENERATION ##########
@@ -131,6 +171,19 @@ def generate_random_date():
     randomDays = random.randint(0, (st.session_state.endDate - st.session_state.startDate).days)
     randomDate = st.session_state.startDate + timedelta(days=randomDays)
     return randomDate
+
+
+
+########### UPDATE DATA FRAME ##########
+def updateDataFrame():
+    st.session_state.pastDatesGenerated = st.session_state.IBpastDatesGenerated + st.session_state.pastDatesGenerated
+    st.session_state.pastCorrectGuesses = st.session_state.IBpastCorrectGuesses + st.session_state.pastCorrectGuesses
+    st.session_state.pastCorrectDays = st.session_state.IBpastCorrectDays + st.session_state.pastCorrectDays
+    st.session_state.pastDaysGuessed = st.session_state.IBpastDaysGuessed + st.session_state.pastDaysGuessed
+    st.session_state.IBpastDatesGenerated = []
+    st.session_state.IBpastCorrectGuesses = []
+    st.session_state.IBpastCorrectDays = []
+    st.session_state.IBpastDaysGuessed = []
 
 
 
@@ -172,6 +225,9 @@ def generateButtonPressed():
 
     st.session_state.feedbackTextStr = ""
 
+    ########## UPDATE TOTAL GUESSES LIST ##########
+    updateDataFrame()
+
 
 if generateButton == True:
     generateButtonPressed()
@@ -180,10 +236,15 @@ if generateButton == True:
 #st.write(st.session_state.correctDay)
 
 
+
+
+
 ########## SET FEEDBACK IF PILLS CHANGE ##########
 def onPillChange():
     if st.session_state.feedbackTextStr == "<h3 style='color: red;'>Incorrect</h3>":
         st.session_state.feedbackTextStr = ""
+
+
 
 
 
@@ -205,6 +266,8 @@ if st.session_state.gameStarted == True:
         dayGuess = st.pills(f"What day of the week {st.session_state.tense1} {st.session_state.randomDateMonth}{st.session_state.tense2}?",(daysOfWeek), key= "inputPill", on_change=onPillChange)
     elif st.session_state.dateFormat == "DD Mo YYYY":
         dayGuess = st.pills(f"What day of the week {st.session_state.tense1} {st.session_state.randomDateMo}{st.session_state.tense2}?",(daysOfWeek), key= "inputPill", on_change=onPillChange)
+
+
 
 
     ########## GUESSING BUTTON ##########
@@ -253,7 +316,7 @@ if st.session_state.gameStarted == True:
                 st.session_state.guessButtonDisabled = True
 
                 st.session_state.prevAnsCorrect = True
-                
+
 
             else:
                 st.session_state.feedbackTextStr = "<h3 style='color: red;'>Incorrect⠀:(</h3>"
@@ -289,6 +352,28 @@ if st.session_state.gameStarted == True:
             st.session_state.guessPercentage = 100*int(st.session_state.totalCorrect)/int(st.session_state.totalGuesses)
 
 
+
+            if st.session_state.dateFormat == "MM/DD/YYYY":
+                st.session_state.IBpastDatesGenerated.insert(0, st.session_state.randomDateUS)
+            elif st.session_state.dateFormat == "DD.MM.YYYY":
+                st.session_state.IBpastDatesGenerated.insert(0, st.session_state.randomDateEU)
+            elif st.session_state.dateFormat == "Month DD, YYYY":
+                st.session_state.IBpastDatesGenerated.insert(0, st.session_state.randomDateMonth)
+            elif st.session_state.dateFormat == "DD Mo YYYY":
+                st.session_state.IBpastDatesGenerated.insert(0, st.session_state.randomDateMo)
+
+            if st.session_state.prevAnsCorrect:
+                st.session_state.IBpastCorrectGuesses.insert(0, "Correct")
+            else:
+                st.session_state.IBpastCorrectGuesses.insert(0, "Incorrect")
+        
+            st.session_state.IBpastCorrectDays.insert(0, st.session_state.correctDay)
+            st.session_state.IBpastDaysGuessed.insert(0, dayGuess)
+
+            if st.session_state.prevAnsCorrect:
+                updateDataFrame()
+
+
             st.session_state.guessingStarted = True
 
 
@@ -296,115 +381,125 @@ st.markdown(st.session_state.feedbackTextStr, unsafe_allow_html=True)
 
 st.divider()
 
+
+
+
+
+
+
 ########## SCORE METRICS ##########
 if st.session_state.guessingStarted == True:
-    ### ANSWER METRICS ###
-    col1, col2, col3, col4, col5 = st.columns(5)
-    with col1:
-        st.metric(label="Total Correct", value=st.session_state.totalCorrect)
-    with col2:
-        st.metric(label="Total Guesses", value=st.session_state.totalGuesses)
-    with col3:
-        if st.session_state.totalCorrect < 1:
-            st.session_state.guessPercentageDelta = ""
-        elif f"{st.session_state.guessPercentage:.1f}" == f"{st.session_state.oldGuessPercentage:.1f}":
-            st.session_state.guessPercentageDelta = ""
-        else:
-            st.session_state.guessPercentageDelta = f"{st.session_state.guessPercentage - st.session_state.oldGuessPercentage :.1f}%" 
-        st.metric(label="Percent Accuracy", value= f"{st.session_state.guessPercentage:.1f}%", delta=st.session_state.guessPercentageDelta)
-    with col4:
-        st.metric(label="Current Streak", value=st.session_state.currentStreak)
-    with col5:
-        st.metric(label="Longest Streak", value=st.session_state.longestStreak)
+    showMetrics = st.toggle("Show score metrics")
+    if showMetrics:
+        ### ANSWER METRICS ###
+        st.write("### Score Metrics")
+        col1, col2, col3, col4, col5 = st.columns(5)
+        with col1:
+            st.metric(label="Total Correct", value=st.session_state.totalCorrect)
+        with col2:
+            st.metric(label="Total Guesses", value=st.session_state.totalGuesses)
+        with col3:
+            if st.session_state.totalCorrect < 1:
+                st.session_state.guessPercentageDelta = ""
+            elif f"{st.session_state.guessPercentage:.1f}" == f"{st.session_state.oldGuessPercentage:.1f}":
+                st.session_state.guessPercentageDelta = ""
+            else:
+                st.session_state.guessPercentageDelta = f"{st.session_state.guessPercentage - st.session_state.oldGuessPercentage :.1f}%" 
+            st.metric(label="Percent Accuracy", value= f"{st.session_state.guessPercentage:.1f}%", delta=st.session_state.guessPercentageDelta)
+        with col4:
+            st.metric(label="Current Streak", value=st.session_state.currentStreak)
+        with col5:
+            st.metric(label="Longest Streak", value=st.session_state.longestStreak)
 
-    ### TIME METRICS ###
-    col1, col2, col3, col4, col5 = st.columns(5)
-    with col1:     
-        if st.session_state.totalCorrect == 0:
-            st.session_state.answerTimeStr = "N/A"
-        if st.session_state.totalCorrect < 2:
-            st.session_state.answerTimeDelta = ""
+        ### TIME METRICS ###
+        col1, col2, col3, col4, col5 = st.columns(5)
+        with col1:     
+            if st.session_state.totalCorrect == 0:
+                st.session_state.answerTimeStr = "N/A"
+            if st.session_state.totalCorrect < 2:
+                st.session_state.answerTimeDelta = ""
 
-        st.metric(label="Answer Time", value=st.session_state.answerTimeStr, delta=st.session_state.answerTimeDelta, delta_color="inverse")
+            st.metric(label="Answer Time", value=st.session_state.answerTimeStr, delta=st.session_state.answerTimeDelta, delta_color="inverse")
 
-    with col2:
-        if len(st.session_state.ansTimesList) < 5:
-            st.session_state.fourAnsAvgStr = "N/A"
-        else:
-            st.session_state.fourAnsAvgStr = f"{st.session_state.fourAnsAvg:.2f}s"
+        with col2:
+            if len(st.session_state.ansTimesList) < 5:
+                st.session_state.fourAnsAvgStr = "N/A"
+            else:
+                st.session_state.fourAnsAvgStr = f"{st.session_state.fourAnsAvg:.2f}s"
 
-        if st.session_state.totalCorrect < 6:
-            st.session_state.fourAnsAvgDelta = ""
-        elif f"{st.session_state.fourAnsAvgList[1] - st.session_state.fourAnsAvgList[0]:.2f}s" == "0.00s":
-            st.session_state.fourAnsAvgDelta = ""
-        else:
-            st.session_state.fourAnsAvgDelta = f"{st.session_state.fourAnsAvgList[1] - st.session_state.fourAnsAvgList[0]:.2f}s"
-        
-        st.metric(label="5-Answer Avg Time", value=st.session_state.fourAnsAvgStr, delta=st.session_state.fourAnsAvgDelta, delta_color= "inverse")
-    with col3:
-        st.metric(label="Fastest Time", value=st.session_state.fastestTimeStr)
-    with col4:
-        st.metric(label="Fastest 5-Answer Avg", value=st.session_state.fastestFourAnsAvgStr)
-    with col5:
-        if st.session_state.totalCorrect == 0:
-            st.session_state.allTimeAvgStr = "N/A"
-        else:
-            st.session_state.allTimeAvgStr = f"{st.session_state.allTimeAvg:.2f}s"
+            if st.session_state.totalCorrect < 6:
+                st.session_state.fourAnsAvgDelta = ""
+            elif f"{st.session_state.fourAnsAvgList[1] - st.session_state.fourAnsAvgList[0]:.2f}s" == "0.00s":
+                st.session_state.fourAnsAvgDelta = ""
+            else:
+                st.session_state.fourAnsAvgDelta = f"{st.session_state.fourAnsAvgList[1] - st.session_state.fourAnsAvgList[0]:.2f}s"
+            
+            st.metric(label="5-Answer Avg Time", value=st.session_state.fourAnsAvgStr, delta=st.session_state.fourAnsAvgDelta, delta_color= "inverse")
+        with col3:
+            st.metric(label="Fastest Time", value=st.session_state.fastestTimeStr)
+        with col4:
+            st.metric(label="Fastest 5-Answer Avg", value=st.session_state.fastestFourAnsAvgStr)
+        with col5:
+            if st.session_state.totalCorrect == 0:
+                st.session_state.allTimeAvgStr = "N/A"
+            else:
+                st.session_state.allTimeAvgStr = f"{st.session_state.allTimeAvg:.2f}s"
 
-        if st.session_state.totalCorrect < 2:
-            st.session_state.allTimeAvgDelta = ""
-        elif f"{st.session_state.allTimeAvgList[1] - st.session_state.allTimeAvgList[0]:.2f}s" == "0.00s":
-            st.session_state.allTimeAvgDelta = ""
-        else:
-            st.session_state.allTimeAvgDelta = f"{st.session_state.allTimeAvgList[1] - st.session_state.allTimeAvgList[0]:.2f}s"
+            if st.session_state.totalCorrect < 2:
+                st.session_state.allTimeAvgDelta = ""
+            elif f"{st.session_state.allTimeAvgList[1] - st.session_state.allTimeAvgList[0]:.2f}s" == "0.00s":
+                st.session_state.allTimeAvgDelta = ""
+            else:
+                st.session_state.allTimeAvgDelta = f"{st.session_state.allTimeAvgList[1] - st.session_state.allTimeAvgList[0]:.2f}s"
 
-        st.metric(label="Overall Avg Time", value= st.session_state.allTimeAvgStr, delta=st.session_state.allTimeAvgDelta, delta_color= "inverse")
+            st.metric(label="Overall Avg Time", value= st.session_state.allTimeAvgStr, delta=st.session_state.allTimeAvgDelta, delta_color= "inverse")
 
+        ########## RESET STATS BUTTON ##########
+
+        def resetStats():
+            st.write("resetting")
+            st.session_state.totalCorrect = 0
+            st.session_state.totalIncorrect = 0
+            st.session_state.totalGuesses = 0
+            st.session_state.currentStreak = 0
+            st.session_state.longestStreak = 0
+            st.session_state.oldAnswerTime = ""
+            st.session_state.guessPercentage = 0
+            st.session_state.fastestTime = ""
+            st.session_state.fastestFourAnsAvg = ""
+            st.session_state.ansTimesList = deque(maxlen=5)
+            st.session_state.fourAnsAvg = 0
+            st.session_state.fourAnsAvgList = deque(maxlen=2)
+            st.session_state.allTimesList = []
+            st.session_state.allTimeAvgList = deque(maxlen=2)
+            st.session_state.fastestFourAnsAvgStr = "N/A"
+            st.session_state.fastestTimeStr = "N/A"
+
+        st.session_state.resetStatsButton = st.button("Reset Stats")
+        if st.session_state.resetStatsButton == True:
+            resetStats()
 
         ### Data table testing ###
-    #data = {
-    #    "Date": ["Blank date 1", "Bob", "Charlie", "David"],
-    #    "Correct Weekday": [25, 30, 35, 40],
-    #    "Guess": ["New York", "Los Angeles", "Chicago", "Houston"],
-    #    "Time": ["3.02s", "12.34s", "1.29s", ""]
-
-    #}
-
-
-    #df = pd.DataFrame(data)
-
-    #showTable = st.toggle("Show Past Guesses?")
-    #if showTable == True:
-    #    st.write("### DataFrame Test")
-    #    st.table(df)
+    pastGuessesData = {
+        "Date": st.session_state.pastDatesGenerated,
+        "Correct?": st.session_state.pastCorrectGuesses,
+        "Correct Weekday": st.session_state.pastCorrectDays,
+        "Your Guess": st.session_state.pastDaysGuessed,
+        #"Time": ["3.02s", "12.34s", "1.29s", ""]
+    }
 
 
+    pastGuessesDataFrame = pd.DataFrame(pastGuessesData)
+
+    showTable = st.toggle("Show past guesses")
+    if showTable == True:
+        st.write("### Past Guesses")
+        st.dataframe(pastGuessesDataFrame, use_container_width=True, hide_index = True)
 
 
-    ########## RESET STATS BUTTON ##########
 
-    def resetStats():
-        st.write("resetting")
-        st.session_state.totalCorrect = 0
-        st.session_state.totalIncorrect = 0
-        st.session_state.totalGuesses = 0
-        st.session_state.currentStreak = 0
-        st.session_state.longestStreak = 0
-        st.session_state.oldAnswerTime = ""
-        st.session_state.guessPercentage = 0
-        st.session_state.fastestTime = ""
-        st.session_state.fastestFourAnsAvg = ""
-        st.session_state.ansTimesList = deque(maxlen=5)
-        st.session_state.fourAnsAvg = 0
-        st.session_state.fourAnsAvgList = deque(maxlen=2)
-        st.session_state.allTimesList = []
-        st.session_state.allTimeAvgList = deque(maxlen=2)
-        st.session_state.fastestFourAnsAvgStr = "N/A"
-        st.session_state.fastestTimeStr = "N/A"
 
-    st.session_state.resetStatsButton = st.button("Reset Stats")
-    if st.session_state.resetStatsButton == True:
-        resetStats()
+    
 
 
 
