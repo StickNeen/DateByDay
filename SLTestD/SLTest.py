@@ -2,6 +2,7 @@ import streamlit as st
 import random
 from datetime import datetime, timedelta
 from collections import deque
+import pandas as pd
 
 
 
@@ -211,80 +212,84 @@ if st.session_state.gameStarted == True:
     feedbackCol1, invCol2 = st.columns(2)
     #with invCol2:
     #    st.write("⠀")
-    if guessButton == True:   
-        if dayGuess == st.session_state.correctDay:
-            st.session_state.feedbackTextStr = "<h3 style='color: green;'>Correct!⠀:D</h3>"
-            #using feedback int and prevanswer correct, make color text update on the second update outside of any loops (bc it auto reruns each time) but only for incorrect so if you switch your answer the text goes away
-  
-            ##### UPDATE SCORE METRIC VALUES #####
-            st.session_state.totalCorrect += 1
-            st.session_state.currentStreak += 1
-            st.session_state.totalGuesses += 1
+    if guessButton == True:
+        if dayGuess == None:
+            st.session_state.feedbackTextStr = "<h3 style='color: grey;'>Pick a weekday to guess</h3>"
+        
+        else: 
+            if dayGuess == st.session_state.correctDay:
+                st.session_state.feedbackTextStr = "<h3 style='color: green;'>Correct!⠀:D</h3>"
+                #using feedback int and prevanswer correct, make color text update on the second update outside of any loops (bc it auto reruns each time) but only for incorrect so if you switch your answer the text goes away
+    
+                ##### UPDATE SCORE METRIC VALUES #####
+                st.session_state.totalCorrect += 1
+                st.session_state.currentStreak += 1
+                st.session_state.totalGuesses += 1
 
-            ##### UPDATE TIME METRIC VALUES #####
-            st.session_state.timerEnd = datetime.now().time().hour*3600 + datetime.now().time().minute * 60 + datetime.now().time().second + datetime.now().time().microsecond / 1000000
-            st.session_state.answerTime = st.session_state.timerEnd-st.session_state.timerStart
+                ##### UPDATE TIME METRIC VALUES #####
+                st.session_state.timerEnd = datetime.now().time().hour*3600 + datetime.now().time().minute * 60 + datetime.now().time().second + datetime.now().time().microsecond / 1000000
+                st.session_state.answerTime = st.session_state.timerEnd-st.session_state.timerStart
 
-            st.session_state.ansTimesList.append(st.session_state.answerTime)
-            st.session_state.fourAnsAvg = sum(st.session_state.ansTimesList)/len(st.session_state.ansTimesList)
-            st.session_state.fourAnsAvgList.append(st.session_state.fourAnsAvg)
+                st.session_state.ansTimesList.append(st.session_state.answerTime)
+                st.session_state.fourAnsAvg = sum(st.session_state.ansTimesList)/len(st.session_state.ansTimesList)
+                st.session_state.fourAnsAvgList.append(st.session_state.fourAnsAvg)
 
-            st.session_state.allTimesList.append(st.session_state.answerTime)
-            st.session_state.allTimeAvg = sum(st.session_state.allTimesList)/len(st.session_state.allTimesList)
-            st.session_state.allTimeAvgList.append(st.session_state.allTimeAvg)
+                st.session_state.allTimesList.append(st.session_state.answerTime)
+                st.session_state.allTimeAvg = sum(st.session_state.allTimesList)/len(st.session_state.allTimesList)
+                st.session_state.allTimeAvgList.append(st.session_state.allTimeAvg)
 
-            if st.session_state.totalCorrect > 1:
-                if f"{st.session_state.answerTime - st.session_state.oldAnswerTime:.2f}s" != "0.00s":
-                    st.session_state.answerTimeDelta = f"{st.session_state.answerTime - st.session_state.oldAnswerTime:.2f}s"
+                if st.session_state.totalCorrect > 1:
+                    if f"{st.session_state.answerTime - st.session_state.oldAnswerTime:.2f}s" != "0.00s":
+                        st.session_state.answerTimeDelta = f"{st.session_state.answerTime - st.session_state.oldAnswerTime:.2f}s"
+                    else:
+                        st.session_state.answerTimeDelta = ""
                 else:
                     st.session_state.answerTimeDelta = ""
+
+                st.session_state.answerTimeStr = f"{st.session_state.answerTime:.2f}s"
+                st.session_state.oldAnswerTime = st.session_state.answerTime
+
+                ########## MARK ALREADY GUESSED ##########
+                st.session_state.guessButtonDisabled = True
+
+                st.session_state.prevAnsCorrect = True
+                
+
             else:
-                st.session_state.answerTimeDelta = ""
+                st.session_state.feedbackTextStr = "<h3 style='color: red;'>Incorrect⠀:(</h3>"
 
-            st.session_state.answerTimeStr = f"{st.session_state.answerTime:.2f}s"
-            st.session_state.oldAnswerTime = st.session_state.answerTime
+                st.session_state.totalIncorrect += 1
+                st.session_state.currentStreak = 0
+                st.session_state.totalGuesses += 1
 
-            ########## MARK ALREADY GUESSED ##########
-            st.session_state.guessButtonDisabled = True
 
-            st.session_state.prevAnsCorrect = True
+            if st.session_state.currentStreak > st.session_state.longestStreak:
+                st.session_state.longestStreak = st.session_state.currentStreak
+
             
+            if st.session_state.totalCorrect > 4:
+                if st.session_state.fastestFourAnsAvg == "":
+                    st.session_state.fastestFourAnsAvg = st.session_state.fourAnsAvg
+                elif st.session_state.fourAnsAvg < st.session_state.fastestFourAnsAvg:
+                    st.session_state.fastestFourAnsAvg = st.session_state.fourAnsAvg
+                st.session_state.fastestFourAnsAvgStr = f"{st.session_state.fastestFourAnsAvg:.2f}s"
+            else:
+                st.session_state.fastestFourAnsAvgStr = "N/A"
 
-        else:
-            st.session_state.feedbackTextStr = "<h3 style='color: red;'>Incorrect⠀:(</h3>"
+            if st.session_state.totalCorrect > 0:
+                if st.session_state.fastestTime == "":
+                    st.session_state.fastestTime = st.session_state.answerTime
+                elif st.session_state.answerTime < st.session_state.fastestTime:
+                    st.session_state.fastestTime = st.session_state.answerTime
+                st.session_state.fastestTimeStr = f"{st.session_state.fastestTime:.2f}s"
+            else:
+                st.session_state.fastestTimeStr = "N/A"        
 
-            st.session_state.totalIncorrect += 1
-            st.session_state.currentStreak = 0
-            st.session_state.totalGuesses += 1
-
-
-        if st.session_state.currentStreak > st.session_state.longestStreak:
-            st.session_state.longestStreak = st.session_state.currentStreak
-
-        
-        if st.session_state.totalCorrect > 4:
-            if st.session_state.fastestFourAnsAvg == "":
-                st.session_state.fastestFourAnsAvg = st.session_state.fourAnsAvg
-            elif st.session_state.fourAnsAvg < st.session_state.fastestFourAnsAvg:
-                st.session_state.fastestFourAnsAvg = st.session_state.fourAnsAvg
-            st.session_state.fastestFourAnsAvgStr = f"{st.session_state.fastestFourAnsAvg:.2f}s"
-        else:
-            st.session_state.fastestFourAnsAvgStr = "N/A"
-
-        if st.session_state.totalCorrect > 0:
-            if st.session_state.fastestTime == "":
-                st.session_state.fastestTime = st.session_state.answerTime
-            elif st.session_state.answerTime < st.session_state.fastestTime:
-                st.session_state.fastestTime = st.session_state.answerTime
-            st.session_state.fastestTimeStr = f"{st.session_state.fastestTime:.2f}s"
-        else:
-            st.session_state.fastestTimeStr = "N/A"        
-
-        st.session_state.oldGuessPercentage = st.session_state.guessPercentage
-        st.session_state.guessPercentage = 100*int(st.session_state.totalCorrect)/int(st.session_state.totalGuesses)
+            st.session_state.oldGuessPercentage = st.session_state.guessPercentage
+            st.session_state.guessPercentage = 100*int(st.session_state.totalCorrect)/int(st.session_state.totalGuesses)
 
 
-        st.session_state.guessingStarted = True
+            st.session_state.guessingStarted = True
 
 
 st.markdown(st.session_state.feedbackTextStr, unsafe_allow_html=True)
@@ -354,6 +359,26 @@ if st.session_state.guessingStarted == True:
             st.session_state.allTimeAvgDelta = f"{st.session_state.allTimeAvgList[1] - st.session_state.allTimeAvgList[0]:.2f}s"
 
         st.metric(label="Overall Avg Time", value= st.session_state.allTimeAvgStr, delta=st.session_state.allTimeAvgDelta, delta_color= "inverse")
+
+
+        ### Data table testing ###
+    #data = {
+    #    "Date": ["Blank date 1", "Bob", "Charlie", "David"],
+    #    "Correct Weekday": [25, 30, 35, 40],
+    #    "Guess": ["New York", "Los Angeles", "Chicago", "Houston"],
+    #    "Time": ["3.02s", "12.34s", "1.29s", ""]
+
+    #}
+
+
+    #df = pd.DataFrame(data)
+
+    #showTable = st.toggle("Show Past Guesses?")
+    #if showTable == True:
+    #    st.write("### DataFrame Test")
+    #    st.table(df)
+
+
 
 
     ########## RESET STATS BUTTON ##########
