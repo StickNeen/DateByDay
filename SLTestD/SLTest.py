@@ -85,9 +85,9 @@ if True:
 ########## SECRET ANSWER PHASES ##########
 secretPhrases = ["psst... the answer is", "a little bird told me that it's", 
         "I have a hunch that the answer is", "don't tell anyone, but the answer is", 
-        "I've got the inside scoop: it's", "I've got a feeling it's", 
-        "if I were you, I'd bet on", "rumor has it that the answer is", "I've cracked the code: it's", 
-        "between you and me, the answer is", "the answer you're looking for is", 
+        "I have the inside scoop: it's", "I've got a feeling it's", 
+        "if I were you, I'd bet on", "rumor has it that the answer is",
+        "shhhhh... don't let anyone else know that it's", "between you and me, the answer is",
         "here's a little secret: it's", "I know the answer... it's", 
         "I happen to know that it's", "you didn't hear it from me, but the answer is", 
         "I'm not saying it's a guarantee, but I'm pretty sure the answer is", 
@@ -105,15 +105,8 @@ secretPhrases = ["psst... the answer is", "a little bird told me that it's",
 
 
 
-
-
-########## DATE RANGE HEADER ##########
-dateRangeSubheader = st.empty()
-
-
-
 ########## EXTRA OPTIONS EXPANDER ##########
-with st.expander("Options"):
+with st.popover("Options"):
 
     ########## FORMAT QUESTION ##########
     st.session_state.dateFormat = st.selectbox("Date Format", ["MM/DD/YYYY", "DD.MM.YYYY", "Month DD, YYYY", "DD Mo YYYY"])
@@ -138,6 +131,17 @@ with st.expander("Options"):
         st.session_state.endDate = st.date_input("End of custom range", min_value=st.session_state.startDate, max_value=datetime(2600,1,1), format=calendarDateFormat)
 
 
+    ########## DATE RANGE HEADER ##########
+    if st.session_state.dateFormat == "MM/DD/YYYY":
+        st.session_state.dateRangeStr = f"Date Range: {st.session_state.startDate.strftime("%m/%d/%Y")} to {st.session_state.endDate.strftime("%m/%d/%Y")}"
+    elif st.session_state.dateFormat == "DD.MM.YYYY":
+        st.session_state.dateRangeStr = f"Date Range: {st.session_state.startDate.strftime("%d.%m.%Y")} to {st.session_state.endDate.strftime("%d.%m.%Y")}"
+    elif st.session_state.dateFormat == "Month DD, YYYY":
+        st.session_state.dateRangeStr = f"Date Range: {st.session_state.startDate.strftime("%B %d, %Y")} to {st.session_state.endDate.strftime("%B %d, %Y")}"
+    elif st.session_state.dateFormat == "DD Mo YYYY":
+        st.session_state.dateRangeStr = f"Date Range: {st.session_state.startDate.strftime("%d %b %Y")} to {st.session_state.endDate.strftime("%d %b %Y")}"
+
+
 
     ########## AUTO REGENERATE ON CORRECT ANSWER ##########
     autoRegen = st.toggle("Automatically generate new date on correct answer?")
@@ -147,20 +151,13 @@ with st.expander("Options"):
     st.session_state.showAnswerToggle = st.toggle("Show the answer? (This is cheating... but feel free!)")
 
 
-    ########## DATE RANGE HEADER ##########
-    if st.session_state.dateFormat == "MM/DD/YYYY":
-        dateRangeSubheader.subheader(f"Date Range: {st.session_state.startDate.strftime("%m/%d/%Y")} to {st.session_state.endDate.strftime("%m/%d/%Y")}")
-    elif st.session_state.dateFormat == "DD.MM.YYYY":
-        dateRangeSubheader.subheader(f"Date Range: {st.session_state.startDate.strftime("%d.%m.%Y")} to {st.session_state.endDate.strftime("%d.%m.%Y")}")
-    elif st.session_state.dateFormat == "Month DD, YYYY":
-        dateRangeSubheader.subheader(f"Date Range: {st.session_state.startDate.strftime("%B %d, %Y")} to {st.session_state.endDate.strftime("%B %d, %Y")}")
-    elif st.session_state.dateFormat == "DD Mo YYYY":
-        dateRangeSubheader.subheader(f"Date Range: {st.session_state.startDate.strftime("%d %b %Y")} to {st.session_state.endDate.strftime("%d %b %Y")}")
+    
 
 
+########## DATE RANGE HEADER ##########
+dateRangeSubheader = st.empty()
 
-
-
+dateRangeSubheader.subheader(st.session_state.dateRangeStr)
 
 
 
@@ -261,7 +258,8 @@ def onPillChange():
 if st.session_state.gameStarted == True:
     
     if st.session_state.showAnswerToggle == True:    
-        st.write(f"({st.session_state.chosenSecretPhrase} {st.session_state.correctDay})")
+        st.write(f"({st.session_state.chosenSecretPhrase} <span style='color: red;'>{st.session_state.correctDay}</span>)", unsafe_allow_html=True) 
+        
 
     ########## QUESTION SELECTBOX ##########
     daysOfWeek = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
