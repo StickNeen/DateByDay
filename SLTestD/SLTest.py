@@ -257,16 +257,17 @@ with dateGuessingTab:
 
         
         if st.session_state.dateFormat == "MM/DD/YYYY":
-            dayGuess = st.pills(f"What day of the week {st.session_state.tense1} {st.session_state.randomDateUS}{st.session_state.tense2}?",(daysOfWeek), key= "inputPill", on_change=onPillChange)
+            st.write(f"##### What day of the week {st.session_state.tense1} <span style='color: red;'>{st.session_state.randomDateUS}</span>{st.session_state.tense2}?", unsafe_allow_html= True)
         elif st.session_state.dateFormat == "DD.MM.YYYY":
-            dayGuess = st.pills(f"What day of the week {st.session_state.tense1} {st.session_state.randomDateEU}{st.session_state.tense2}?",(daysOfWeek), key= "inputPill", on_change=onPillChange)
+            st.write(f"##### What day of the week {st.session_state.tense1} <span style='color: red;'>{st.session_state.randomDateEU}</span>{st.session_state.tense2}?", unsafe_allow_html= True)
         elif st.session_state.dateFormat == "Month DD, YYYY":
-            dayGuess = st.pills(f"What day of the week {st.session_state.tense1} {st.session_state.randomDateMonth}{st.session_state.tense2}?",(daysOfWeek), key= "inputPill", on_change=onPillChange)
+            st.write(f"##### What day of the week {st.session_state.tense1} <span style='color: red;'>{st.session_state.randomDateMonth}</span>{st.session_state.tense2}?", unsafe_allow_html= True)
         elif st.session_state.dateFormat == "DD Mo YYYY":
-            dayGuess = st.pills(f"What day of the week {st.session_state.tense1} {st.session_state.randomDateMo}{st.session_state.tense2}?",(daysOfWeek), key= "inputPill", on_change=onPillChange)
+            st.write(f"##### What day of the week {st.session_state.tense1} <span style='color: red;'>{st.session_state.randomDateMo}</span>{st.session_state.tense2}?", unsafe_allow_html= True)
 
-
-
+        dayGuess = st.pills("",(daysOfWeek), key= "inputPill", on_change=onPillChange)
+        st.write("")
+        st.write("")
 
         ########## GUESSING BUTTON ##########
         guessButton = st.button("Enter Guess", disabled=st.session_state.guessButtonDisabled)
@@ -280,7 +281,6 @@ with dateGuessingTab:
             else: 
                 if dayGuess == st.session_state.correctDay:
                     st.session_state.feedbackTextStr = "<h3 style='color: green;'>Correct!⠀:D</h3>"
-                    #using feedback int and prevanswer correct, make color text update on the second update outside of any loops (bc it auto reruns each time) but only for incorrect so if you switch your answer the text goes away
         
                     ##### UPDATE SCORE METRIC VALUES #####
                     st.session_state.totalCorrect += 1
@@ -556,6 +556,7 @@ with howToTab:
 
 
 ########## TO DO ##########
+# Color the day they're guessing using <span style='color: red;'>{st.session_state.correctDay}</span>)
 # Intro and other explanation pages
 # Link to numberphile video?
 # Other practice: just doomsdays, 12s or 16s practice
