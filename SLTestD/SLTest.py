@@ -5,9 +5,10 @@ from collections import deque
 import pandas as pd
 
 
+st.title("Date by Day")
+
 
 ########## TABS ##########
-
 dateGuessingTab, howToTab = st.tabs(["Weekday Guessing", "How To?"])
 
 
@@ -550,9 +551,156 @@ with dateGuessingTab:
 
 
 with howToTab:
-    st.write("figure it out yourself")
+    ########## HEADER ##########
+    st.header("How To Guess the Weekday?", divider="rainbow")
+
+    st.write("### The Doomsday Method")
+
+    st.write("""
+    ⠀⠀⠀⠀The process I use to find the day of the week of any date is called the Doomsday Method. It uses the fact that for any given year, 
+    certain easy-to-remember dates (doomsdays) are always on the same day of the week as each other. For example, if March 14th (pi day!) is 
+    a Tuesday in a given year, March 21st and March 28th must also be Tuesdays that year, since they are exactly one and two weeks apart. 
+    But also, October 10th and December 12th will be Tuesdays, since they are always the same day of the week as March 14th. March 14, 
+    October 10, and December 12 are all examples of doomsdays which you can easily remember: pi day, 10/10, and 12/12. Further, if I know 
+    that March 14th, 2000 was a Tuesday, I can quickly figure that March 15th was a Wednesday, or using our doomsdays, that October 13th was 
+    a Friday (spooky!).
 
 
+    ⠀⠀⠀⠀So that's the gist of how the Doomsday Method works. If you're interested, I highly recommend checking out one or both of 
+    these youtube videos about it; they are how I found out about it in the first place, and they explain it very well.
+    """)
+
+    vidCol1, vidCol2 = st.columns(2)
+    with vidCol1:
+        st.video("https://youtu.be/z2x3SSBVGJU?si=apBiInuCWgmvVV6A")
+    with vidCol2:
+        st.video("https://youtu.be/714LTMNJy5M?si=Kq0JY4AT-RVhZYQz")
+
+    st.write("""
+    But if you're not much of one for intra-internet travel, I'll do my best to explain it here.
+    ___   
+    #### My Explanation
+    ⠀⠀⠀⠀The Doomsday Method works in two steps, each with one main aspect of memorization. 
+    First, you have to find what weekday the doomsdays of your year are, and then you have to 
+    find the weekday of the specific date that you're looking for. I'll do my best to explain how each of those
+    steps work, but if you don't care about the explanation and just want the specific steps, or if you
+    think seeing the steps first would be helpful to you, there is a summary at the end. 
+    <br>
+    ##### Quick Tips
+    ⠀⠀⠀⠀Before we get into the steps, here are two quick tips:
+    <br>
+    ⠀⠀⠀⠀First, because we'll be doing a bit of math with weekdays, it's helpful
+    to think of them as numbers -- Sunday = 0 (think "None-day"), Monday = 1 ("One-day"), Tuesday = 2 ("Twos-day"), 
+    Wednesday = 3, Thursday = 4 ("Fours-day"), Friday = 5 ("Five-day"), and Saturday = 6. If you can think of the
+    weekdays as numbers, it's much easier to quickly compute what comes 16 days after a Tuesday, for example.
+    <br>
+    ⠀⠀⠀⠀Second, since weekdays repeat every 7 days, 16 days after a Tuesday is the same as 9 or 2 days after a Tuesday.
+    When you're adding days, you can subtract out extra 7s, or take the remainder when divided by 7 (modulate, if you're
+    using math words).
+
+
+    ##### Step One: The Year
+    ⠀⠀⠀⠀Say you want to figure out what day of the week March 19th, 2000 was. Well, we know from our example above that March 14th, 2000 was a
+    Tuesday, so March 19, 2000 must have been a Sunday. Great! But what if we now want to know what day of the week March 14th, 2001 was? The 
+    trick is that each year, the doomsday moves forward one day of the week. So March 14th, 2001 was a Wednesday; March 14th, 2002 was a Thursday; 
+    and March 14th, 2003 was a Friday. The tricky part is at 2004, since that's a leap year. On leap years, the doomsday increases by two days of 
+    the week, so March 14th, 2004 was a Sunday. 
+    <br>
+    ⠀⠀⠀⠀So, to find what day of the week the doomsday of 2013 was, start at 2000, which you know was a Tuesday (or a 2, using tip one above). 
+    Then, add 13 (or add 6, using tip two above) to get to 2013. Then to account for the leap years, add 13 ÷ 4, ignoring the remainder (that's 
+    how many leap years there were from 2000 to 2013). So, 2 + 6 + 3 = 11. Using tip one, 11-7 = 4, which means that March 14th, 2013 was a Thursday. 
+    """, unsafe_allow_html=True)
+
+    col1, col2 = st.columns([1,1.7])
+
+    with col1:
+        st.write(" ###### ⠀⠀⠀⠀")
+        st.write("""
+    ⠀⠀⠀⠀How about finding the doomsday weekday for 1950? Well, that is where some memorization is needed. To have somewhere to work off of, you have 
+    to remember the doomsday for the start of each century. 2000 was Tuesday, 1900 was Wednesday, 1800 was Friday, and 1700 was Sunday. The cycle repeats
+    from there and is the same going to the future, so 2100 will be Sunday, 2200 will be Friday, and so on.
+    <br>
+    """, unsafe_allow_html=True)
+
+    with col2:
+        st.write(" ###### Century Chart")
+        st.dataframe({"Year": ["1700","1800","1900","2000","2100","2200","2300","2400"],
+         "Doomsday Day of the Week": ["Sunday", "Friday", "Wednesday", "Tuesday", "Sunday", "Friday", "Wednesday", "Tuesday"]},
+          use_container_width=True)
+
+
+    st.write("""
+    ⠀⠀⠀⠀So, back to 1950. If 1900's doomsday was on a wednesday, we start at 3 (tip one). Then you have to add 50, but using tip two again, we can 
+    subtract 49, which is a multiple of 7, to just add 1. Lastly, account for the leap years. 50 ÷ 4 = 12, or 5 (tip two). So, 3 + 1 + 5 = 9, 
+    subtract 7 to get 2, and March 14th, 1950 was on a Tuesday.
+    <br>
+    ⠀⠀⠀⠀Here's one more tip for step one to make it easier. Every 12 years, the doomsday moves forward one day. So 2000 is a Tuesday doomsday, 2012 
+    is a Wednesday, 2024 a Thursday. That can be helpful when you have bigger numbers in the year, like 1979. For 1979, we'd start from 3 again, then 
+    consider which multiple of 12 gets us close to 79. 12 x 6 is 72, so you can add 6 and then work from 72. Add 7 more to get to 79, plus 1 (7 ÷ 4) for 
+    the leap year between 1972 and 1979. So all together, 3 (starting point) + 6 (12 x 6 = 72) + 7 (79-72) + 1 (7 ÷ 4) = 17, or 3 using tip two. 
+    So, 1979's doomsday was on a Wednesday.
+    """, unsafe_allow_html=True)
+
+    col1, col2 = st.columns([1,1.1])
+
+    with col1:
+        st.write("""
+    ##### Step Two: The Date
+    ⠀⠀⠀⠀Once you're able to find what day of the week the doomsday was for your preferred year, you have to use the doomsdays to get to your specific date.
+    For this step, you have to memorize a doomsday in each month. March's is pi day, which we have already used in examples. April, June, August, October, 
+    and December are self-explanatory, and for May, July, September, and November, remember the mnemonic "Working 9 to 5 at the 7-Eleven." January and Febuary
+    are a bit tricky, since they change if it's a leap year. January is the 3rd for three years and the 4th evey fourth year (leap years), and Febuary is always the last
+    day of the month (28th normally, 29th on leap years).
+    """)
+
+    with col2:
+        st.write(" ###### Doomsday Chart")
+        st.dataframe({"Month": ["January","February","March","April","May","June","July","August","September","October","November","December"],
+         "Doomsday (Month/Day)": ["1/3 (1/4)", "2/28 (2/29)", "3/14", "4/4", "5/9", "6/6", "7/11", "8/8", "9/5", "10/10", "11/7", "12/12"]},
+          use_container_width=True)
+
+    st.write("""
+    ⠀⠀⠀⠀To know whether a year is a leap year for the January and February doomsdays, check if the last two numbers of the year are divisble by four.
+    So 2034 is not a leap year, since 34 is not divisible by 4, but 2096 is, since 96 is divisible by 4. It's a bit more confusing for the centuries;
+    the rule is that every 100 years the leap year is skipped, unless the year is divisible by 400, in which case it is a leap year. So, 1700, 1800, and 1900
+    weren't leap years, but 2000 was. 2100, 2200, and 2300 won't be leap years, but 2400 will be. It's a bit confusing, but it hardly ever comes up.
+    <br>
+    ⠀⠀⠀⠀So, let's say you want to find out what day of the week June 30th, 1979 was. We know from step one that 1979's doomsday was Wednesday. From there,
+    we use the June doomsday, 6/6. From the 6th to the 30th is 24 days (30-6), which is the same as adding 3 days (from tip two). So, Wednesday plus 3 is Saturday,
+    and June 30th, 1979 was a Saturday.
+    <br>
+    ⠀⠀⠀⠀Let's try one more: February 13th, 1950. Again, we know from above that 1950's doomsday was a Tuesday. To use the February doomsday, check if 1950 was a leap
+    year. 50 is not equally divisible by 4, so 1950 was not a leap year, and the doomsday is the 28th. Our date is before the doomsday, so we'll have to subtract. The
+    13th is 15 days before the 28th (28-13), which is the same as 1 day before it (tip two). One day before Tuesday is Monday, so February 13th, 1950 was a Monday.
+
+
+    ##### Summary
+    ⠀⠀⠀⠀Ok, that was a lot. Here are the overall steps to find the day of the week for a random date. I'll use April 12, 1861 as my example.
+    <br>
+    1. Find which day of the week the doomsday for the start of your century is. 1800's doomsday was on Friday, so I'll remember 5.
+    <br>
+    2. Divide the last two digits of your year by 12, ignoring the remainder. 61 ÷ 12 = 5.
+    <br>
+    3. Find the remainder from the previous step. The remainder of 61 ÷ 12 is 1.
+    <br>
+    4. Divide the remainder you found in the previous step by 4, again ignoring the remainder. 1 ÷ 4 = 0.
+    <br>
+    5. Find the number of days between your day and the doomsday in your month. April 12 - April 4 = 8 days.
+    <br>
+    6. Add the numbers from the previous steps up and subtract 7 until the number you have is less than 7. 5 + 5 + 1 + 0 + 8 = 19. 19 - 7 = 12, 12 - 7 = 5.
+    <br>
+    7. Convert your number into a day of the week. 5 corresponds with Friday, so April 12, 1861 was a Friday.
+
+    <br>
+    ⠀⠀⠀⠀I hope that helped! Again, I highly recommend watching those videos if you're still confused, they explain everything better than I did. 
+    If you already have, I recommend practice! Keeping all of the numbers straight is difficult at first, but with enough reps, you can figure it out
+    pretty quickly. And then you have a wonderful new party trick! Happy calculating!
+
+        
+        
+    """, unsafe_allow_html=True)
+
+        
 
 
 ########## TO DO ##########
