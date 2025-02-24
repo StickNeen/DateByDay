@@ -589,12 +589,12 @@ with howToTab:
     ##### Quick Tips
     ⠀⠀⠀⠀Before we get into the steps, here are two quick tips:
     <br>
-    ⠀⠀⠀⠀First, because we'll be doing a bit of math with weekdays, it's helpful
+    ⠀⠀⠀⠀Tip #1: because we'll be doing a bit of math with weekdays, it's helpful
     to think of them as numbers -- Sunday = 0 (think "None-day"), Monday = 1 ("One-day"), Tuesday = 2 ("Twos-day"), 
     Wednesday = 3, Thursday = 4 ("Fours-day"), Friday = 5 ("Five-day"), and Saturday = 6. If you can think of the
     weekdays as numbers, it's much easier to quickly compute what comes 16 days after a Tuesday, for example.
     <br>
-    ⠀⠀⠀⠀Second, since weekdays repeat every 7 days, 16 days after a Tuesday is the same as 9 or 2 days after a Tuesday.
+    ⠀⠀⠀⠀Tip #2: since weekdays repeat every 7 days, 16 days after a Tuesday is the same as 9 or 2 days after a Tuesday.
     When you're adding days, you can subtract out extra 7s, or take the remainder when divided by 7 (modulate, if you're
     using math words).
 
